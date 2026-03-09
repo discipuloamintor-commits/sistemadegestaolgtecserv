@@ -37,8 +37,12 @@ interface Service {
   tipo_pagamento: string;
   observacoes: string | null;
   client_id: string;
+  detalhes_servico: any;
   clients: {
     nome: string;
+    telefone: string;
+    email: string | null;
+    endereco: string | null;
   };
 }
 
@@ -83,7 +87,10 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
         .select(`
           *,
           clients (
-            nome
+            nome,
+            telefone,
+            email,
+            endereco
           )
         `)
         .order('data_servico', { ascending: false });

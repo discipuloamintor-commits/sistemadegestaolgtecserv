@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { 
   Select,
   SelectContent,
@@ -18,15 +19,34 @@ import {
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+const SERVICE_CATEGORIES = [
+  { value: 'website', label: 'Criação de Website' },
+  { value: 'aplicativo', label: 'Criação de Aplicativo' },
+  { value: 'sistema', label: 'Criação de Sistema' },
+  { value: 'trafego_pago', label: 'Gestão de Tráfego Pago' },
+  { value: 'redes_sociais', label: 'Gestão de Redes Sociais' },
+  { value: 'outro', label: 'Outro' },
+];
+
 const serviceSchema = z.object({
   client_id: z.string().min(1, "Selecione um cliente"),
+  categoria_servico: z.string().min(1, "Selecione uma categoria"),
   nome_servico: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
+  nome_servico_custom: z.string().optional(),
   data_servico: z.string().min(1, "Data é obrigatória"),
   valor_total: z.string().min(1, "Valor total é obrigatório"),
   tipo_pagamento: z.enum(['fixo', 'com_investimento']),
   valor_investimento: z.string().optional(),
   status_pagamento: z.enum(['pago', 'pendente', 'devendo']),
   observacoes: z.string().max(1000).optional().or(z.literal("")),
+  // Website fields
+  valor_dominio: z.string().optional(),
+  valor_hospedagem: z.string().optional(),
+  hospedagem_gratuita: z.boolean().optional(),
+  periodo_hospedagem_gratuita: z.string().optional(),
+  // Tráfego pago fields
+  orcamento_anuncios: z.string().optional(),
+  plataformas: z.string().optional(),
 }).refine((data) => {
   if (data.tipo_pagamento === 'com_investimento') {
     return data.valor_investimento && data.valor_investimento.length > 0;
@@ -53,6 +73,8 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedTipo, setSelectedTipo] = useState<'fixo' | 'com_investimento'>('fixo');
+  const [selectedCategoria, setSelectedCategoria] = useState<string>('');
+  const [hospedagemGratuita, setHospedagemGratuita] = useState(false);
 
   const {
     register,
@@ -65,6 +87,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
     defaultValues: {
       tipo_pagamento: 'fixo',
       status_pagamento: 'pago',
+      hospedagem_gratuita: false,
     },
   });
 
@@ -90,13 +113,11 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
         .select('id, nome')
         .order('nome');
 
-      // Apenas filtrar por user_id se NÃO for admin
       if (!isAdmin) {
         query = query.eq('user_id', user.id);
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
       setClients(data || []);
     } catch (error) {
@@ -114,6 +135,17 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
     return watchValorTotal ? parseFloat(watchValorTotal).toFixed(2) : '0.00';
   };
 
+  function handleCategoriaChange(value: string) {
+    setSelectedCategoria(value);
+    setValue('categoria_servico', value);
+    const cat = SERVICE_CATEGORIES.find(c => c.value === value);
+    if (cat && value !== 'outro') {
+      setValue('nome_servico', cat.label);
+    } else {
+      setValue('nome_servico', '');
+    }
+  }
+
   async function onSubmit(data: ServiceFormData) {
     try {
       setLoading(true);
@@ -121,14 +153,34 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
       if (!user) throw new Error("Usuário não autenticado");
 
       const valorTotal = parseFloat(data.valor_total);
-      
       const valorInvestimento = data.tipo_pagamento === 'com_investimento' && data.valor_investimento
         ? parseFloat(data.valor_investimento)
         : 0;
 
+      // Build detalhes_servico based on category
+      const detalhes: Record<string, any> = {
+        categoria: data.categoria_servico,
+      };
+
+      if (data.categoria_servico === 'website') {
+        detalhes.valor_dominio = data.valor_dominio ? parseFloat(data.valor_dominio) : 0;
+        detalhes.valor_hospedagem = data.valor_hospedagem ? parseFloat(data.valor_hospedagem) : 0;
+        detalhes.hospedagem_gratuita = data.hospedagem_gratuita || false;
+        detalhes.periodo_hospedagem_gratuita = data.periodo_hospedagem_gratuita ? parseInt(data.periodo_hospedagem_gratuita) : 0;
+      }
+
+      if (data.categoria_servico === 'trafego_pago') {
+        detalhes.orcamento_anuncios = data.orcamento_anuncios ? parseFloat(data.orcamento_anuncios) : 0;
+        detalhes.plataformas = data.plataformas || '';
+      }
+
+      const finalName = data.categoria_servico === 'outro' && data.nome_servico_custom
+        ? data.nome_servico_custom
+        : data.nome_servico;
+
       const serviceData = {
         client_id: data.client_id,
-        nome_servico: data.nome_servico,
+        nome_servico: finalName,
         data_servico: data.data_servico,
         valor_total: valorTotal,
         tipo_pagamento: data.tipo_pagamento,
@@ -137,26 +189,21 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
         observacoes: data.observacoes || null,
         user_id: user.id,
         tem_investimento: data.tipo_pagamento === 'com_investimento',
+        detalhes_servico: detalhes,
       };
 
-      console.log('Tentando salvar serviço:', serviceData);
-
-      const { error, data: insertedData } = await supabase
+      const { error } = await supabase
         .from('services')
         .insert([serviceData])
         .select();
 
-      if (error) {
-        console.error('Erro detalhado do Supabase:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast.success('Serviço cadastrado com sucesso');
       onSuccess();
     } catch (error: any) {
       console.error('Error saving service:', error);
-      const errorMessage = error?.message || 'Erro desconhecido';
-      toast.error(`Erro ao salvar serviço: ${errorMessage}`);
+      toast.error(`Erro ao salvar serviço: ${error?.message || 'Erro desconhecido'}`);
     } finally {
       setLoading(false);
     }
@@ -184,18 +231,129 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
         )}
       </div>
 
-      {/* Nome do Serviço */}
+      {/* Categoria do Serviço */}
       <div className="space-y-2">
-        <Label htmlFor="nome_servico">Nome do Serviço *</Label>
-        <Input
-          id="nome_servico"
-          {...register("nome_servico")}
-          placeholder="Ex: Manutenção preventiva"
-        />
-        {errors.nome_servico && (
-          <p className="text-sm text-destructive">{errors.nome_servico.message}</p>
+        <Label>Categoria do Serviço *</Label>
+        <Select onValueChange={handleCategoriaChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione a categoria" />
+          </SelectTrigger>
+          <SelectContent>
+            {SERVICE_CATEGORIES.map((cat) => (
+              <SelectItem key={cat.value} value={cat.value}>
+                {cat.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.categoria_servico && (
+          <p className="text-sm text-destructive">{errors.categoria_servico.message}</p>
         )}
       </div>
+
+      {/* Nome personalizado (apenas para "Outro") */}
+      {selectedCategoria === 'outro' && (
+        <div className="space-y-2">
+          <Label htmlFor="nome_servico_custom">Nome do Serviço *</Label>
+          <Input
+            id="nome_servico_custom"
+            {...register("nome_servico_custom")}
+            placeholder="Descreva o serviço..."
+            onChange={(e) => {
+              setValue('nome_servico_custom', e.target.value);
+              setValue('nome_servico', e.target.value || 'Outro');
+            }}
+          />
+        </div>
+      )}
+
+      {/* Hidden field for nome_servico when not "outro" */}
+      <input type="hidden" {...register("nome_servico")} />
+
+      {/* === CAMPOS ESPECÍFICOS: WEBSITE === */}
+      {selectedCategoria === 'website' && (
+        <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+          <h4 className="font-semibold text-sm text-foreground">Detalhes do Website</h4>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="valor_dominio">Valor do Domínio (MT)</Label>
+              <Input
+                id="valor_dominio"
+                type="number"
+                step="0.01"
+                {...register("valor_dominio")}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="valor_hospedagem">Valor da Hospedagem (MT)</Label>
+              <Input
+                id="valor_hospedagem"
+                type="number"
+                step="0.01"
+                {...register("valor_hospedagem")}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-md border border-border bg-background">
+            <div>
+              <Label htmlFor="hospedagem_gratuita" className="cursor-pointer">Hospedagem Gratuita?</Label>
+              <p className="text-xs text-muted-foreground">Oferecer período de hospedagem gratuita</p>
+            </div>
+            <Switch
+              id="hospedagem_gratuita"
+              checked={hospedagemGratuita}
+              onCheckedChange={(checked) => {
+                setHospedagemGratuita(checked);
+                setValue('hospedagem_gratuita', checked);
+              }}
+            />
+          </div>
+
+          {hospedagemGratuita && (
+            <div className="space-y-2">
+              <Label htmlFor="periodo_hospedagem_gratuita">Período Gratuito (meses)</Label>
+              <Input
+                id="periodo_hospedagem_gratuita"
+                type="number"
+                min="1"
+                {...register("periodo_hospedagem_gratuita")}
+                placeholder="Ex: 3"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* === CAMPOS ESPECÍFICOS: TRÁFEGO PAGO === */}
+      {selectedCategoria === 'trafego_pago' && (
+        <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+          <h4 className="font-semibold text-sm text-foreground">Detalhes de Tráfego Pago</h4>
+          
+          <div className="space-y-2">
+            <Label htmlFor="orcamento_anuncios">Orçamento de Anúncios (MT)</Label>
+            <Input
+              id="orcamento_anuncios"
+              type="number"
+              step="0.01"
+              {...register("orcamento_anuncios")}
+              placeholder="0.00"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="plataformas">Plataformas</Label>
+            <Input
+              id="plataformas"
+              {...register("plataformas")}
+              placeholder="Ex: Facebook, Google, Instagram"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Data do Serviço */}
       <div className="space-y-2">

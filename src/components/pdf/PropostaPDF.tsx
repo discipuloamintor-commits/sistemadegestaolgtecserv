@@ -1,4 +1,14 @@
 import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import logoImg from '@/assets/logo.png';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  website: 'Criação de Website',
+  aplicativo: 'Criação de Aplicativo',
+  sistema: 'Criação de Sistema',
+  trafego_pago: 'Gestão de Tráfego Pago',
+  redes_sociais: 'Gestão de Redes Sociais',
+  outro: 'Outro',
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -10,17 +20,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 30,
     paddingBottom: 20,
     borderBottom: '2pt solid #059669',
   },
   logo: {
-    width: 120,
-    height: 60,
+    width: 100,
+    height: 50,
     objectFit: 'contain',
   },
   companyInfo: {
     textAlign: 'right',
+    flex: 1,
   },
   companyName: {
     fontSize: 18,
@@ -34,25 +46,25 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 25,
     color: '#1e293b',
     textTransform: 'uppercase',
     letterSpacing: 2,
   },
   section: {
-    marginBottom: 20,
-    padding: 15,
+    marginBottom: 16,
+    padding: 14,
     backgroundColor: '#f0fdf4',
-    borderRadius: 8,
+    borderRadius: 6,
     border: '1pt solid #bbf7d0',
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 10,
     color: '#047857',
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -60,22 +72,24 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
-    paddingBottom: 8,
+    marginBottom: 6,
+    paddingBottom: 6,
     borderBottom: '0.5pt solid #bbf7d0',
   },
   label: {
     fontWeight: 'bold',
     width: '40%',
     color: '#475569',
+    fontSize: 10,
   },
   value: {
     width: '60%',
     color: '#1e293b',
+    fontSize: 10,
   },
   objetivoBox: {
-    marginBottom: 20,
-    padding: 15,
+    marginBottom: 16,
+    padding: 14,
     backgroundColor: '#eff6ff',
     borderLeft: '4pt solid #3b82f6',
   },
@@ -93,8 +107,8 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 15,
-    paddingTop: 15,
+    marginTop: 12,
+    paddingTop: 12,
     borderTop: '2pt solid #059669',
   },
   totalLabel: {
@@ -108,7 +122,7 @@ const styles = StyleSheet.create({
     color: '#047857',
   },
   footer: {
-    marginTop: 40,
+    marginTop: 'auto',
     paddingTop: 20,
     borderTop: '1pt solid #cbd5e1',
     textAlign: 'center',
@@ -131,6 +145,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingTop: 8,
   },
+  detailsSection: {
+    marginBottom: 16,
+    padding: 14,
+    backgroundColor: '#eff6ff',
+    borderRadius: 6,
+    border: '1pt solid #bfdbfe',
+  },
 });
 
 interface PropostaProps {
@@ -141,42 +162,33 @@ interface PropostaProps {
 }
 
 export function PropostaPDF({ servico, cliente, empresa, objetivo }: PropostaProps) {
+  const detalhes = servico.detalhes_servico || {};
+  const categoria = detalhes.categoria;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            {empresa?.logotipo_url && (
-              <Image src={empresa.logotipo_url} style={styles.logo} />
-            )}
-          </View>
+          <Image src={logoImg} style={styles.logo} />
           <View style={styles.companyInfo}>
             <Text style={styles.companyName}>{empresa?.nome || 'Empresa'}</Text>
-            {empresa?.endereco && (
-              <Text style={styles.companyDetails}>{empresa.endereco}</Text>
-            )}
-            {empresa?.contato && (
-              <Text style={styles.companyDetails}>{empresa.contato}</Text>
-            )}
+            {empresa?.endereco && <Text style={styles.companyDetails}>{empresa.endereco}</Text>}
+            {empresa?.contato && <Text style={styles.companyDetails}>{empresa.contato}</Text>}
           </View>
         </View>
 
-        {/* Título */}
         <Text style={styles.title}>Proposta Comercial</Text>
 
         {/* Objetivo */}
         <View style={styles.objetivoBox}>
-          <Text style={styles.objetivoTitle}>📋 Objetivo da Proposta</Text>
+          <Text style={styles.objetivoTitle}>Objetivo da Proposta</Text>
           <Text style={styles.objetivoText}>
-            {objetivo || 
-              `Apresentamos esta proposta comercial para prestação de serviços de ${servico.nome_servico}, 
-              com o objetivo de atender as necessidades do cliente com excelência e profissionalismo.`
-            }
+            {objetivo ||
+              `Apresentamos esta proposta comercial para prestação de serviços de ${servico.nome_servico}, com o objetivo de atender as necessidades do cliente com excelência e profissionalismo.`}
           </Text>
         </View>
 
-        {/* Informações do Cliente */}
+        {/* Cliente */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Cliente</Text>
           <View style={styles.row}>
@@ -201,18 +213,22 @@ export function PropostaPDF({ servico, cliente, empresa, objetivo }: PropostaPro
           )}
         </View>
 
-        {/* Escopo do Serviço */}
+        {/* Escopo */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Escopo do Serviço</Text>
+          {categoria && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Categoria:</Text>
+              <Text style={styles.value}>{CATEGORY_LABELS[categoria] || categoria}</Text>
+            </View>
+          )}
           <View style={styles.row}>
             <Text style={styles.label}>Serviço:</Text>
             <Text style={styles.value}>{servico.nome_servico}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Data Prevista:</Text>
-            <Text style={styles.value}>
-              {new Date(servico.data_servico).toLocaleDateString('pt-MZ')}
-            </Text>
+            <Text style={styles.value}>{new Date(servico.data_servico).toLocaleDateString('pt-MZ')}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Tipo de Pagamento:</Text>
@@ -221,6 +237,49 @@ export function PropostaPDF({ servico, cliente, empresa, objetivo }: PropostaPro
             </Text>
           </View>
         </View>
+
+        {/* Detalhes por categoria */}
+        {categoria === 'website' && (
+          <View style={styles.detailsSection}>
+            <Text style={styles.sectionTitle}>Detalhes do Website</Text>
+            {detalhes.valor_dominio > 0 && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Domínio:</Text>
+                <Text style={styles.value}>{Number(detalhes.valor_dominio).toFixed(2)} MT</Text>
+              </View>
+            )}
+            {detalhes.valor_hospedagem > 0 && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Hospedagem:</Text>
+                <Text style={styles.value}>{Number(detalhes.valor_hospedagem).toFixed(2)} MT</Text>
+              </View>
+            )}
+            {detalhes.hospedagem_gratuita && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Hospedagem Gratuita:</Text>
+                <Text style={styles.value}>{detalhes.periodo_hospedagem_gratuita} meses</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {categoria === 'trafego_pago' && (
+          <View style={styles.detailsSection}>
+            <Text style={styles.sectionTitle}>Detalhes de Tráfego Pago</Text>
+            {detalhes.orcamento_anuncios > 0 && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Orçamento Anúncios:</Text>
+                <Text style={styles.value}>{Number(detalhes.orcamento_anuncios).toFixed(2)} MT</Text>
+              </View>
+            )}
+            {detalhes.plataformas && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Plataformas:</Text>
+                <Text style={styles.value}>{detalhes.plataformas}</Text>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Valores */}
         <View style={styles.section}>
@@ -239,14 +298,12 @@ export function PropostaPDF({ servico, cliente, empresa, objetivo }: PropostaPro
               </View>
             </>
           )}
-          
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>VALOR TOTAL:</Text>
             <Text style={styles.totalValue}>{Number(servico.valor_total).toFixed(2)} MT</Text>
           </View>
         </View>
 
-        {/* Observações/Termos */}
         {servico.observacoes && (
           <View style={{ ...styles.section, backgroundColor: '#fef3c7', border: '1pt solid #fde047' }}>
             <Text style={{ fontWeight: 'bold', marginBottom: 6, color: '#854d0e' }}>Observações e Termos:</Text>
@@ -270,12 +327,8 @@ export function PropostaPDF({ servico, cliente, empresa, objetivo }: PropostaPro
           </View>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
-          <Text>
-            Proposta gerada em {new Date().toLocaleDateString('pt-MZ')} às{' '}
-            {new Date().toLocaleTimeString('pt-MZ')}
-          </Text>
+          <Text>Proposta gerada em {new Date().toLocaleDateString('pt-MZ')} às {new Date().toLocaleTimeString('pt-MZ')}</Text>
           <Text style={{ marginTop: 4 }}>Este documento tem validade de 30 dias a partir da data de emissão</Text>
         </View>
       </Page>
