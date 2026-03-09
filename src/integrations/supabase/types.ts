@@ -176,6 +176,7 @@ export type Database = {
           comprovativo_url: string | null
           created_at: string
           data_servico: string
+          detalhes_servico: Json | null
           id: string
           nome_servico: string
           observacoes: string | null
@@ -193,6 +194,7 @@ export type Database = {
           comprovativo_url?: string | null
           created_at?: string
           data_servico: string
+          detalhes_servico?: Json | null
           id?: string
           nome_servico: string
           observacoes?: string | null
@@ -210,6 +212,7 @@ export type Database = {
           comprovativo_url?: string | null
           created_at?: string
           data_servico?: string
+          detalhes_servico?: Json | null
           id?: string
           nome_servico?: string
           observacoes?: string | null

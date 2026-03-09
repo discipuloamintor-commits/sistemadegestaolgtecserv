@@ -1,0 +1,1 @@
+ALTER TABLE services ADD COLUMN detalhes_servico jsonb DEFAULT '{}';
