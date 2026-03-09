@@ -87,7 +87,10 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
         .select(`
           *,
           clients (
-            nome
+            nome,
+            telefone,
+            email,
+            endereco
           )
         `)
         .order('data_servico', { ascending: false });
