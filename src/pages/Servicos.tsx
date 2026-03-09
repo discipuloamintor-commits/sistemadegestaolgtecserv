@@ -37,8 +37,12 @@ interface Service {
   tipo_pagamento: string;
   observacoes: string | null;
   client_id: string;
+  detalhes_servico: any;
   clients: {
     nome: string;
+    telefone: string;
+    email: string | null;
+    endereco: string | null;
   };
 }
 
