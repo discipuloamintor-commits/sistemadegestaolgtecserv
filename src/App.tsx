@@ -6,8 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Loading } from "@/components/ui/loading";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { SplashScreen } from "@/components/pwa/SplashScreen";
+import { IOSInstallBanner } from "@/components/pwa/IOSInstallBanner";
 import { useAutoInstallPrompt } from "@/hooks/useAutoInstallPrompt";
 import { useServiceWorkerUpdate } from "@/hooks/useServiceWorkerUpdate";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import Auth from "./pages/Auth";
 import Offline from "./pages/Offline";
 
@@ -35,22 +38,12 @@ const queryClient = new QueryClient();
 const App = () => {
   const { isInstalled, deferredPrompt, promptToInstall, canShowPrompt, dismissPrompt } = useAutoInstallPrompt();
   const { updateAvailable, applyUpdate } = useServiceWorkerUpdate();
-
-  console.log('🎯 App.tsx - PWA State:', {
-    isInstalled,
-    canShowPrompt,
-    hasDeferredPrompt: !!deferredPrompt,
-    updateAvailable,
-    shouldShowPrompt: canShowPrompt && !isInstalled
-  });
+  useNetworkStatus();
 
   const handleInstall = async () => {
-    console.log('📲 App.tsx: handleInstall chamado');
     if (updateAvailable) {
-      console.log('🔄 Aplicando atualização...');
       applyUpdate();
     } else {
-      console.log('📥 Instalando app...');
       await promptToInstall();
     }
   };
@@ -60,6 +53,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <SplashScreen />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Suspense fallback={<Loading />}>
             <Routes>
@@ -103,6 +97,9 @@ const App = () => {
             isUpdateAvailable={updateAvailable}
           />
         )}
+
+        {/* iOS Install Banner */}
+        <IOSInstallBanner />
       </TooltipProvider>
     </QueryClientProvider>
   );

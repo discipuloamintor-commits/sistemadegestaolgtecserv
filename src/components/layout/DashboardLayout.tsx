@@ -6,6 +6,8 @@ import { LayoutDashboard, Users, Briefcase, Globe, Receipt, Settings, LogOut } f
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useBadge } from "@/hooks/useBadge";
+import { useState, useEffect } from "react";
 
 // 3D Icons Premium
 import dash3d from "@/assets/3d-icons/dash.png";
@@ -22,6 +24,29 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { session, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [overdueCount, setOverdueCount] = useState(0);
+
+  // Fetch overdue payment count for badge
+  useEffect(() => {
+    const fetchOverdue = async () => {
+      try {
+        const hoje = new Date().toISOString().split('T')[0];
+        const { count } = await supabase
+          .from('hosting_payments')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pendente')
+          .lt('data_vencimento', hoje);
+        setOverdueCount(count || 0);
+      } catch (_) {
+        // Silent fail
+      }
+    };
+    fetchOverdue();
+    const interval = setInterval(fetchOverdue, 5 * 60 * 1000); // refresh every 5 min
+    return () => clearInterval(interval);
+  }, []);
+
+  useBadge(overdueCount);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -70,17 +95,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         <main className="flex-1 flex flex-col min-h-screen relative pb-20 md:pb-0">
-          {/* Top Header - Fixed for Mobile, Sticky for Desktop */}
-          <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 md:static md:bg-transparent md:border-none md:h-20">
+          {/* Top Header - Mobile only (sidebar handles desktop branding) */}
+          <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 md:hidden">
             <div className="flex items-center gap-3 shrink-0">
               <img src={logo} alt="LG TecServ" className="h-9 w-auto object-contain" />
-              <div className="hidden md:flex flex-col">
-                <h2 className="text-lg font-bold text-gray-900 leading-none">LG TecServ</h2>
-                <p className="text-[10px] text-gray-500 font-medium tracking-tight">Sistema de Gestão</p>
-              </div>
             </div>
 
-            <div className="md:hidden flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-500 transition-colors">
                 <LogOut className="w-5 h-5" />
               </button>
