@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -62,6 +62,7 @@ type ServiceFormData = z.infer<typeof serviceSchema>;
 interface ServiceFormProps {
   onSuccess: () => void;
   isAdmin?: boolean;
+  service?: any | null;
 }
 
 interface Client {
@@ -69,12 +70,12 @@ interface Client {
   nome: string;
 }
 
-export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
+export function ServiceForm({ onSuccess, isAdmin = false, service = null }: ServiceFormProps) {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedTipo, setSelectedTipo] = useState<'fixo' | 'com_investimento'>('fixo');
-  const [selectedCategoria, setSelectedCategoria] = useState<string>('');
-  const [hospedagemGratuita, setHospedagemGratuita] = useState(false);
+  const [selectedTipo, setSelectedTipo] = useState<'fixo' | 'com_investimento'>(service?.tipo_pagamento || 'fixo');
+  const [selectedCategoria, setSelectedCategoria] = useState<string>(service?.detalhes_servico?.categoria || '');
+  const [hospedagemGratuita, setHospedagemGratuita] = useState(service?.detalhes_servico?.hospedagem_gratuita || false);
 
   const {
     register,
@@ -102,6 +103,43 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
   useEffect(() => {
     setSelectedTipo(watchTipo);
   }, [watchTipo]);
+
+  useEffect(() => {
+    if (service) {
+      setSelectedTipo(service.tipo_pagamento);
+      setSelectedCategoria(service.detalhes_servico?.categoria || '');
+      setHospedagemGratuita(service.detalhes_servico?.hospedagem_gratuita || false);
+
+      setValue('client_id', service.client_id);
+      setValue('categoria_servico', service.detalhes_servico?.categoria || '');
+      setValue('data_servico', service.data_servico);
+      setValue('valor_total', service.valor_total.toString());
+      setValue('tipo_pagamento', service.tipo_pagamento);
+      setValue('status_pagamento', service.status_pagamento);
+      setValue('observacoes', service.observacoes || '');
+
+      if (service.tipo_pagamento === 'com_investimento') {
+        setValue('valor_investimento', service.valor_investimento?.toString() || '');
+      }
+
+      if (service.detalhes_servico?.categoria === 'website') {
+        setValue('valor_dominio', service.detalhes_servico.valor_dominio?.toString() || '');
+        setValue('valor_hospedagem', service.detalhes_servico.valor_hospedagem?.toString() || '');
+        setValue('hospedagem_gratuita', service.detalhes_servico.hospedagem_gratuita || false);
+        setValue('periodo_hospedagem_gratuita', service.detalhes_servico.periodo_hospedagem_gratuita?.toString() || '');
+      }
+
+      if (service.detalhes_servico?.categoria === 'trafego_pago') {
+        setValue('orcamento_anuncios', service.detalhes_servico.orcamento_anuncios?.toString() || '');
+        setValue('plataformas', service.detalhes_servico.plataformas || '');
+      }
+
+      if (service.detalhes_servico?.categoria === 'outro') {
+        setValue('nome_servico_custom', service.nome_servico);
+      }
+      setValue('nome_servico', service.nome_servico);
+    }
+  }, [service, setValue]);
 
   async function fetchClients() {
     try {
@@ -192,14 +230,26 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
         detalhes_servico: detalhes,
       };
 
-      const { error } = await supabase
-        .from('services')
-        .insert([serviceData])
-        .select();
+      if (service) {
+        // Update existing service
+        const { error } = await supabase
+          .from('services')
+          .update(serviceData)
+          .eq('id', service.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('Serviço atualizado com sucesso');
+      } else {
+        // Insert new service
+        const { error } = await supabase
+          .from('services')
+          .insert([serviceData])
+          .select();
 
-      toast.success('Serviço cadastrado com sucesso');
+        if (error) throw error;
+        toast.success('Serviço cadastrado com sucesso');
+      }
+
       onSuccess();
     } catch (error: any) {
       console.error('Error saving service:', error);
@@ -274,7 +324,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
       {selectedCategoria === 'website' && (
         <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
           <h4 className="font-semibold text-sm text-foreground">Detalhes do Website</h4>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="valor_dominio">Valor do Domínio (MT)</Label>
@@ -332,7 +382,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
       {selectedCategoria === 'trafego_pago' && (
         <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
           <h4 className="font-semibold text-sm text-foreground">Detalhes de Tráfego Pago</h4>
-          
+
           <div className="space-y-2">
             <Label htmlFor="orcamento_anuncios">Orçamento de Anúncios (MT)</Label>
             <Input
@@ -427,7 +477,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
         <Label>Lucro Líquido</Label>
         <p className="text-2xl font-bold text-green-600">{calculateLucro()} MT</p>
         <p className="text-xs text-muted-foreground">
-          {selectedTipo === 'com_investimento' 
+          {selectedTipo === 'com_investimento'
             ? 'Calculado automaticamente: Valor Total - Investimento'
             : 'Igual ao Valor Total (sem investimento)'
           }
@@ -437,7 +487,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
       {/* Status de Pagamento */}
       <div className="space-y-2">
         <Label htmlFor="status_pagamento">Status de Pagamento *</Label>
-        <Select 
+        <Select
           defaultValue="pago"
           onValueChange={(value) => setValue('status_pagamento', value as 'pago' | 'pendente' | 'devendo')}
         >
@@ -472,7 +522,7 @@ export function ServiceForm({ onSuccess, isAdmin = false }: ServiceFormProps) {
       <div className="flex justify-end gap-2 pt-4">
         <Button type="submit" disabled={loading}>
           {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          Cadastrar Serviço
+          {service ? 'Atualizar Serviço' : 'Cadastrar Serviço'}
         </Button>
       </div>
     </form>

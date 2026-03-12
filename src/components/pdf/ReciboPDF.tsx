@@ -12,8 +12,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    fontSize: 11,
+    padding: 30,
+    fontSize: 10,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff',
   },
@@ -21,9 +21,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
-    paddingBottom: 20,
-    borderBottom: '2pt solid #2563eb',
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottom: '1pt solid #e2e8f0',
   },
   logo: {
     width: 100,
@@ -35,93 +35,115 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   companyName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#1e40af',
+    color: '#4c1d95',
     marginBottom: 4,
   },
   companyDetails: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#64748b',
     marginBottom: 2,
   },
+  reciboHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 25,
-    color: '#1e293b',
+    color: '#0f766e',
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
+  },
+  reciboNumero: {
+    textAlign: 'right',
+  },
+  reciboNumeroLabel: {
+    fontSize: 8,
+    color: '#64748b',
+    textTransform: 'uppercase',
+  },
+  reciboNumeroValue: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#4c1d95',
+  },
+  reciboData: {
+    fontSize: 8,
+    color: '#64748b',
+    marginTop: 4,
+  },
+  declaracao: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#f0fdfa',
+    borderLeft: '3pt solid #0f766e',
+    borderRadius: 4,
+  },
+  declaracaoText: {
+    fontSize: 10,
+    color: '#115e59',
+    lineHeight: 1.5,
+  },
+  declaracaoBold: {
+    fontWeight: 'bold',
   },
   section: {
     marginBottom: 16,
-    padding: 14,
+    padding: 10,
     backgroundColor: '#f8fafc',
-    borderRadius: 6,
-    border: '1pt solid #e2e8f0',
+    borderRadius: 4,
+    border: '0.5pt solid #e2e8f0',
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 9,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#334155',
+    marginBottom: 8,
+    color: '#4c1d95',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
-    paddingBottom: 6,
+    marginBottom: 4,
+    paddingBottom: 4,
     borderBottom: '0.5pt solid #e2e8f0',
   },
   label: {
     fontWeight: 'bold',
     width: '40%',
-    color: '#475569',
-    fontSize: 10,
+    color: '#64748b',
+    fontSize: 9,
   },
   value: {
     width: '60%',
     color: '#1e293b',
-    fontSize: 10,
+    fontSize: 9,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 12,
     paddingTop: 12,
-    borderTop: '2pt solid #2563eb',
+    borderTop: '1pt solid #0f766e',
   },
   totalLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
-    color: '#1e40af',
+    color: '#0f766e',
   },
   totalValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#1e40af',
-  },
-  observacoes: {
-    marginTop: 8,
-    padding: 10,
-    backgroundColor: '#fff7ed',
-    borderLeft: '3pt solid #f59e0b',
-    fontSize: 10,
-    color: '#78350f',
-  },
-  footer: {
-    marginTop: 'auto',
-    paddingTop: 20,
-    borderTop: '1pt solid #cbd5e1',
-    textAlign: 'center',
-    fontSize: 8,
-    color: '#94a3b8',
+    color: '#0f766e',
   },
   statusBadge: {
-    padding: '4 8',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 4,
     fontSize: 9,
     fontWeight: 'bold',
@@ -132,10 +154,38 @@ const styles = StyleSheet.create({
   statusDevendo: { backgroundColor: '#fee2e2', color: '#991b1b' },
   detailsSection: {
     marginBottom: 16,
-    padding: 14,
-    backgroundColor: '#eff6ff',
-    borderRadius: 6,
-    border: '1pt solid #bfdbfe',
+    padding: 10,
+    backgroundColor: '#f8fafc',
+    borderRadius: 4,
+    border: '0.5pt solid #e2e8f0',
+  },
+  pagamentoSection: {
+    marginBottom: 16,
+    padding: 10,
+    backgroundColor: '#f8fafc',
+    borderRadius: 4,
+    border: '0.5pt solid #e2e8f0',
+  },
+  pagamentoItem: {
+    fontSize: 8,
+    color: '#334155',
+    marginBottom: 2,
+  },
+  observacoes: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#f8fafc',
+    borderLeft: '2pt solid #e2e8f0',
+    fontSize: 9,
+    color: '#475569',
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: 12,
+    borderTop: '0.5pt solid #e2e8f0',
+    textAlign: 'center',
+    fontSize: 7,
+    color: '#94a3b8',
   },
 });
 
@@ -158,6 +208,11 @@ export function ReciboPDF({ servico, cliente, empresa }: ReciboProps) {
   const detalhes = servico.detalhes_servico || {};
   const categoria = detalhes.categoria;
 
+  // Generate receipt number
+  const reciboNum = `REC-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${servico.id?.substring(0, 6)?.toUpperCase() || '000000'}`;
+
+  const valorPorExtenso = Number(servico.valor_total).toFixed(2);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -165,13 +220,32 @@ export function ReciboPDF({ servico, cliente, empresa }: ReciboProps) {
         <View style={styles.header}>
           <Image src={logoImg} style={styles.logo} />
           <View style={styles.companyInfo}>
-            <Text style={styles.companyName}>{empresa?.nome || 'Empresa'}</Text>
+            {/* Removido o Texto LG TecServ para evitar duplicação com o logo */}
+            {empresa?.nuit && <Text style={styles.companyDetails}>NUIT: {empresa.nuit}</Text>}
             {empresa?.endereco && <Text style={styles.companyDetails}>{empresa.endereco}</Text>}
             {empresa?.contato && <Text style={styles.companyDetails}>{empresa.contato}</Text>}
           </View>
         </View>
 
-        <Text style={styles.title}>Recibo de Pagamento</Text>
+        {/* Recibo Title + Number */}
+        <View style={styles.reciboHeader}>
+          <Text style={styles.title}>Recibo</Text>
+          <View style={styles.reciboNumero}>
+            <Text style={styles.reciboNumeroLabel}>Nº do Recibo</Text>
+            <Text style={styles.reciboNumeroValue}>{reciboNum}</Text>
+            <Text style={styles.reciboData}>Data: {new Date().toLocaleDateString('pt-MZ')}</Text>
+          </View>
+        </View>
+
+        {/* Declaração formal */}
+        <View style={styles.declaracao}>
+          <Text style={styles.declaracaoText}>
+            Recebi do(a) <Text style={styles.declaracaoBold}>{cliente?.nome || 'N/A'}</Text> a quantia de{' '}
+            <Text style={styles.declaracaoBold}>{valorPorExtenso} MT</Text> (Meticais), referente ao serviço de{' '}
+            <Text style={styles.declaracaoBold}>{servico.nome_servico}</Text>, prestado na data de{' '}
+            <Text style={styles.declaracaoBold}>{new Date(servico.data_servico).toLocaleDateString('pt-MZ')}</Text>.
+          </Text>
+        </View>
 
         {/* Dados do Cliente */}
         <View style={styles.section}>
@@ -284,6 +358,15 @@ export function ReciboPDF({ servico, cliente, empresa }: ReciboProps) {
           </View>
         )}
 
+        {/* Formas de Pagamento */}
+        <View style={styles.pagamentoSection}>
+          <Text style={styles.sectionTitle}>Formas de Pagamento Aceites</Text>
+          <Text style={styles.pagamentoItem}>- M-Pesa / e-Mola</Text>
+          <Text style={styles.pagamentoItem}>- Transferência Bancária</Text>
+          <Text style={styles.pagamentoItem}>- Depósito Directo</Text>
+          <Text style={styles.pagamentoItem}>- Numerário (Dinheiro)</Text>
+        </View>
+
         {servico.observacoes && (
           <View style={styles.observacoes}>
             <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>Observações:</Text>
@@ -292,8 +375,8 @@ export function ReciboPDF({ servico, cliente, empresa }: ReciboProps) {
         )}
 
         <View style={styles.footer}>
-          <Text>Documento gerado em {new Date().toLocaleDateString('pt-MZ')} às {new Date().toLocaleTimeString('pt-MZ')}</Text>
-          <Text style={{ marginTop: 4 }}>Este é um documento eletrônico válido</Text>
+          <Text>Recibo gerado em {new Date().toLocaleDateString('pt-MZ')} às {new Date().toLocaleTimeString('pt-MZ')}</Text>
+          <Text style={{ marginTop: 4 }}>Este é um documento eletrónico válido - {empresa?.nome || 'LG TecServ'}</Text>
         </View>
       </Page>
     </Document>

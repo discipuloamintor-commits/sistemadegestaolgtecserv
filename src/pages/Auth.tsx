@@ -26,7 +26,7 @@ const Auth = () => {
           email,
           password,
         });
-        
+
         if (error) throw error;
         toast.success("Login realizado com sucesso!");
         navigate("/");
@@ -41,7 +41,7 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/`,
           },
         });
-        
+
         if (error) throw error;
         toast.success("Conta criada! Aguardando aprovação do administrador.");
         setIsLogin(true);
@@ -86,7 +86,7 @@ const Auth = () => {
                 />
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

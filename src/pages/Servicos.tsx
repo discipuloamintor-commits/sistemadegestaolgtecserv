@@ -4,27 +4,39 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Calendar, DollarSign, TrendingUp, FileDown, Printer, FileText } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Calendar, DollarSign, TrendingUp, FileDown, Printer, FileText, Receipt, FileSignature, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ServiceForm } from "@/components/services/ServiceForm";
+import { PropostaContratoForm } from "@/components/services/PropostaContratoForm";
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { ReciboPDF } from "@/components/pdf/ReciboPDF";
 import { CotacaoPDF } from "@/components/pdf/CotacaoPDF";
 import { PropostaPDF } from "@/components/pdf/PropostaPDF";
+import { FaturaPDF } from "@/components/pdf/FaturaPDF";
 
 interface Service {
   id: string;
@@ -54,8 +66,12 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   const [empresaData, setEmpresaData] = useState<any>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -115,6 +131,26 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
     }
   }
 
+  async function handleDelete(id: string) {
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Serviço eliminado com sucesso');
+      fetchServices();
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      toast.error('Erro ao eliminar serviço');
+    } finally {
+      setDeleteDialogOpen(false);
+      setServiceToDelete(null);
+    }
+  }
+
   const filteredServices = services.filter(service => {
     if (filterStatus === "todos") return true;
     return service.status_pagamento === filterStatus;
@@ -124,10 +160,13 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
   const totalInvestment = filteredServices.reduce((sum, s) => sum + Number(s.valor_investimento || 0), 0);
   const totalProfit = filteredServices.reduce((sum, s) => sum + Number(s.valor_lucro || 0), 0);
 
-  async function handlePrint(service: Service, type: 'recibo' | 'cotacao' | 'proposta') {
+  async function handlePrint(service: Service, type: 'recibo' | 'cotacao' | 'proposta' | 'fatura') {
     try {
       let pdfDoc;
       switch (type) {
+        case 'fatura':
+          pdfDoc = <FaturaPDF servico={service} cliente={service.clients} empresa={empresaData} />;
+          break;
         case 'recibo':
           pdfDoc = <ReciboPDF servico={service} cliente={service.clients} empresa={empresaData} />;
           break;
@@ -138,11 +177,11 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
           pdfDoc = <PropostaPDF servico={service} cliente={service.clients} empresa={empresaData} />;
           break;
       }
-      
+
       const blob = await pdf(pdfDoc).toBlob();
       const url = URL.createObjectURL(blob);
       const printWindow = window.open(url, '_blank');
-      
+
       if (printWindow) {
         printWindow.addEventListener('load', () => {
           printWindow.print();
@@ -167,64 +206,95 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{isAdmin ? 'Todos os Serviços' : 'Meus Serviços'}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{isAdmin ? 'Todos os Serviços' : 'Meus Serviços'}</h1>
             <p className="text-muted-foreground">
-              Gerencie os serviços prestados
+              Gerencie os serviços prestados no sistema
             </p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Serviço
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Cadastrar Novo Serviço</DialogTitle>
-              </DialogHeader>
-          <ServiceForm
-            isAdmin={isAdmin}
-            onSuccess={() => {
-              setDialogOpen(false);
-              fetchServices();
-            }}
-          />
-            </DialogContent>
-          </Dialog>
+          <div className="flex flex-wrap items-center gap-3">
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) setEditingService(null);
+            }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingService(null)} className="rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Serviço
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-mobile">
+                <DialogHeader>
+                  <DialogTitle>{editingService ? 'Editar Serviço' : 'Cadastrar Novo Serviço'}</DialogTitle>
+                </DialogHeader>
+                <ServiceForm
+                  isAdmin={isAdmin}
+                  service={editingService}
+                  onSuccess={() => {
+                    setDialogOpen(false);
+                    setEditingService(null);
+                    fetchServices();
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={contractDialogOpen} onOpenChange={setContractDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50 rounded-xl transition-all hover:scale-105">
+                  <FileSignature className="w-4 h-4 mr-2" />
+                  Proposta Contrato
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto dialog-content-mobile">
+                <DialogHeader>
+                  <DialogTitle>Nova Proposta de Contrato Mensal</DialogTitle>
+                </DialogHeader>
+                <PropostaContratoForm isAdmin={isAdmin} />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Statistics */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          <Card className="premium-card animate-fade-up stagger-1 border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Recebido</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <DollarSign className="h-4 w-4 text-blue-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalReceived.toFixed(2)} MT</div>
+              <div className="text-2xl font-bold text-gray-900">{totalReceived.toFixed(2)} MT</div>
+              <p className="text-xs text-muted-foreground mt-1">Volume total bruto</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="premium-card animate-fade-up stagger-2 border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Investido</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2 bg-amber-50 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-amber-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalInvestment.toFixed(2)} MT</div>
+              <div className="text-2xl font-bold text-gray-900">{totalInvestment.toFixed(2)} MT</div>
+              <p className="text-xs text-muted-foreground mt-1">Custo de operação</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="premium-card animate-fade-up stagger-3 border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Lucro Total</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2 bg-green-50 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{totalProfit.toFixed(2)} MT</div>
+              <p className="text-xs text-muted-foreground mt-1">Margem líquida</p>
             </CardContent>
           </Card>
         </div>
@@ -244,8 +314,8 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
         </div>
 
         <div className="grid gap-4">
-          {filteredServices.map((service) => (
-            <Card key={service.id} className="hover:shadow-md transition-shadow">
+          {filteredServices.map((service, index) => (
+            <Card key={service.id} className={`premium-card animate-fade-up border-none shadow-sm stagger-${(index % 5) + 1}`}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
@@ -256,8 +326,8 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
                   </div>
                   <Badge variant={
                     service.status_pagamento === 'pago' ? 'default' :
-                    service.status_pagamento === 'pendente' ? 'secondary' :
-                    'destructive'
+                      service.status_pagamento === 'pendente' ? 'secondary' :
+                        'destructive'
                   }>
                     {service.status_pagamento}
                   </Badge>
@@ -298,15 +368,27 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
                     {service.observacoes}
                   </p>
                 )}
-                
+
                 {/* Botões de PDF */}
                 <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                  <PDFDownloadLink
+                    document={<FaturaPDF servico={service} cliente={service.clients} empresa={empresaData} />}
+                    fileName={`fatura-${service.nome_servico.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
+                  >
+                    {({ loading: pdfLoading }) => (
+                      <Button variant="outline" size="sm" disabled={pdfLoading} className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                        <Receipt className="w-4 h-4 mr-2" />
+                        {pdfLoading ? 'Gerando...' : 'Fatura PDF'}
+                      </Button>
+                    )}
+                  </PDFDownloadLink>
+
                   <PDFDownloadLink
                     document={<ReciboPDF servico={service} cliente={service.clients} empresa={empresaData} />}
                     fileName={`recibo-${service.nome_servico.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                   >
                     {({ loading: pdfLoading }) => (
-                      <Button variant="outline" size="sm" disabled={pdfLoading}>
+                      <Button variant="outline" size="sm" disabled={pdfLoading} className="border-green-300 text-green-700 hover:bg-green-50">
                         <FileDown className="w-4 h-4 mr-2" />
                         {pdfLoading ? 'Gerando...' : 'Recibo PDF'}
                       </Button>
@@ -337,13 +419,39 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
                     )}
                   </PDFDownloadLink>
 
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => handlePrint(service, 'recibo')}
                   >
                     <Printer className="w-4 h-4 mr-2" />
                     Imprimir Recibo
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                    onClick={() => {
+                      setEditingService(service);
+                      setDialogOpen(true);
+                    }}
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Editar
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-300 text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      setServiceToDelete(service.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar
                   </Button>
                 </div>
               </CardContent>
@@ -359,6 +467,26 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
           </div>
         )}
       </div>
-    </DashboardLayout>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem a certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O serviço será permanentemente removido da base de dados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => serviceToDelete && handleDelete(serviceToDelete)}
+              className="bg-red-600 hover:bg-red-700 font-bold"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </DashboardLayout >
   );
 }

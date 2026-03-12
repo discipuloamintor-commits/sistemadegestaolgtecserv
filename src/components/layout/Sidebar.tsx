@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt } from "lucide-react";
+import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt, Globe } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,21 +17,29 @@ import {
 } from "@/components/ui/sidebar";
 import logo from "@/assets/logo.png";
 
+// 3D Icons
+import dash3d from "@/assets/3d-icons/dash.png";
+import users3d from "@/assets/3d-icons/users.png";
+import services3d from "@/assets/3d-icons/services.png";
+import hosting3d from "@/assets/3d-icons/hosting.png";
+import expenses3d from "@/assets/3d-icons/expenses.png";
+import allClients3d from "@/assets/3d-icons/Todos Clientes.png";
+
 const adminItems = [
-  { title: "Dashboard Admin", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Gerenciar Usuários", url: "/admin/usuarios", icon: UserCheck },
-  { title: "Todos Clientes", url: "/admin/clientes", icon: Building2 },
-  { title: "Todos Serviços", url: "/admin/servicos", icon: Briefcase },
-  { title: "Todos Gastos", url: "/admin/gastos", icon: Receipt },
-  { title: "Relatórios Globais", url: "/admin/relatorios", icon: BarChart3 },
+  { title: "Dashboard Admin", url: "/admin/dashboard", icon: dash3d },
+  { title: "Gerenciar Usuários", url: "/admin/usuarios", icon: users3d },
+  { title: "Todos Clientes", url: "/admin/clientes", icon: allClients3d },
+  { title: "Todos Serviços", url: "/admin/servicos", icon: services3d },
+  { title: "Pagamentos Hosting", url: "/admin/pagamentos-hosting", icon: hosting3d },
+  { title: "Todos Gastos", url: "/admin/gastos", icon: expenses3d },
 ];
 
 const membroItems = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Clientes", url: "/clientes", icon: Building2 },
-  { title: "Serviços", url: "/servicos", icon: Briefcase },
-  { title: "Gastos", url: "/gastos", icon: Receipt },
-  { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
+  { title: "Dashboard", url: "/", icon: dash3d },
+  { title: "Clientes", url: "/clientes", icon: allClients3d },
+  { title: "Serviços", url: "/servicos", icon: services3d },
+  { title: "Pagamentos Hosting", url: "/pagamentos-hosting", icon: hosting3d },
+  { title: "Gastos", url: "/gastos", icon: expenses3d },
   { title: "Minha Empresa", url: "/empresa", icon: Settings },
 ];
 
@@ -59,11 +67,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar className={isCollapsed ? "w-14" : "w-64"}>
-      <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+      <div className="flex items-center gap-3 p-4 border-b border-sidebar-border overflow-hidden">
         {!isCollapsed && (
-          <img src={logo} alt="LG TecServ" className="h-10 object-contain" />
+          <img src={logo} alt="LG TecServ" className="h-8 w-auto object-contain shrink-0" />
         )}
-        <SidebarTrigger className="ml-auto" />
+        <SidebarTrigger className="ml-auto shrink-0" />
       </div>
 
       <SidebarContent>
@@ -75,7 +83,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="h-4 w-4" />
+                      {typeof item.icon === "string" ? (
+                        <img src={item.icon} alt={item.title} className="h-5 w-5 object-contain" />
+                      ) : (
+                        <item.icon className="h-4 w-4" />
+                      )}
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>

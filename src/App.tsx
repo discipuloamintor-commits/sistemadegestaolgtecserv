@@ -16,8 +16,8 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Clientes = lazy(() => import("./pages/Clientes"));
 const ClienteDetalhes = lazy(() => import("./pages/ClienteDetalhes"));
 const Servicos = lazy(() => import("./pages/Servicos"));
+const PagamentosHosting = lazy(() => import("./pages/PagamentosHosting"));
 const Gastos = lazy(() => import("./pages/Gastos"));
-const RelatoriosGlobais = lazy(() => import("./pages/RelatoriosGlobais"));
 const MinhaEmpresa = lazy(() => import("./pages/MinhaEmpresa"));
 const AguardandoAprovacao = lazy(() => import("./pages/AguardandoAprovacao"));
 const ContaRejeitada = lazy(() => import("./pages/ContaRejeitada"));
@@ -60,7 +60,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Suspense fallback={<Loading />}>
             <Routes>
               <Route path="/auth" element={<Auth />} />
@@ -70,30 +70,30 @@ const App = () => {
               <Route path="/conta-rejeitada" element={<ContaRejeitada />} />
               <Route path="/conta-suspensa" element={<ContaSuspensa />} />
               <Route path="/install" element={<Install />} />
-            
-            {/* Member Routes */}
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+              {/* Member Routes */}
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/clientes" element={<ProtectedRoute><Clientes /></ProtectedRoute>} />
               <Route path="/clientes/:id" element={<ProtectedRoute><ClienteDetalhes /></ProtectedRoute>} />
               <Route path="/servicos" element={<ProtectedRoute><Servicos /></ProtectedRoute>} />
+              <Route path="/pagamentos-hosting" element={<ProtectedRoute><PagamentosHosting /></ProtectedRoute>} />
               <Route path="/gastos" element={<ProtectedRoute><Gastos /></ProtectedRoute>} />
-              <Route path="/relatorios" element={<ProtectedRoute><RelatoriosGlobais /></ProtectedRoute>} />
               <Route path="/empresa" element={<ProtectedRoute><MinhaEmpresa /></ProtectedRoute>} />
-            
-            {/* Admin Routes */}
+
+              {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin/usuarios" element={<AdminRoute><GerenciarUsuarios /></AdminRoute>} />
               <Route path="/admin/clientes" element={<AdminRoute><Clientes isAdmin /></AdminRoute>} />
               <Route path="/admin/servicos" element={<AdminRoute><Servicos isAdmin /></AdminRoute>} />
+              <Route path="/admin/pagamentos-hosting" element={<AdminRoute><PagamentosHosting isAdmin /></AdminRoute>} />
               <Route path="/admin/gastos" element={<AdminRoute><Gastos isAdmin /></AdminRoute>} />
-              <Route path="/admin/relatorios" element={<AdminRoute><RelatoriosGlobais isAdmin /></AdminRoute>} />
-            
+
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </BrowserRouter>
-        
+
         {/* Install Prompt */}
         {canShowPrompt && !isInstalled && (
           <InstallPrompt

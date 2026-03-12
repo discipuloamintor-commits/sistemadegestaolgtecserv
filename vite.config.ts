@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -11,7 +12,8 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(), 
+    react(),
+    nodePolyfills(),
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -87,7 +89,16 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: '/offline',
-        navigateFallbackDenylist: [/^\/api/, /^\/auth/],
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /^\/auth/,
+          /manifest\.webmanifest$/,
+          /favicon\.ico$/,
+          /robots\.txt$/,
+          /\.png$/,
+          /\.jpg$/,
+          /\.svg$/
+        ],
         runtimeCaching: [
           // Static assets - Cache First
           {
@@ -128,22 +139,6 @@ export default defineConfig(({ mode }) => ({
               }
             }
           },
-          // Supabase API - Network First with short cache
-          {
-            urlPattern: /^https:\/\/nhbpponbsqdluztypaij\.supabase\.co\/rest\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api-cache',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 minutes
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
           // HTML Pages - Stale While Revalidate
           {
             urlPattern: /\/(dashboard|clientes|servicos|gastos|relatorios|empresa|admin)/,
@@ -157,6 +152,11 @@ export default defineConfig(({ mode }) => ({
             }
           }
         ]
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
+        navigateFallback: 'index.html',
       }
     })
   ].filter(Boolean),
