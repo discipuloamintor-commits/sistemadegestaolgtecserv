@@ -123,7 +123,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:js|css|woff|woff2|ttf|eot)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'static-assets-v2',
+              cacheName: 'static-assets-v3',
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
@@ -135,7 +135,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'images-v2',
+              cacheName: 'images-v3',
               expiration: {
                 maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
