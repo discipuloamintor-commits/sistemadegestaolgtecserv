@@ -58,6 +58,24 @@ export default defineConfig(({ mode }) => ({
             purpose: 'maskable'
           }
         ],
+        screenshots: [
+          {
+            src: '/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Dashboard LG TecServ'
+          }
+        ],
+        share_target: {
+          action: '/clientes',
+          method: 'GET',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url'
+          }
+        },
         shortcuts: [
           {
             name: 'Dashboard',
@@ -105,7 +123,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:js|css|woff|woff2|ttf|eot)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'static-assets',
+              cacheName: 'static-assets-v2',
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
@@ -117,7 +135,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'images',
+              cacheName: 'images-v2',
               expiration: {
                 maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
@@ -150,8 +168,22 @@ export default defineConfig(({ mode }) => ({
                 maxAgeSeconds: 60 * 60 * 24 // 1 day
               }
             }
+          },
+          // Background Sync for Mutations
+          {
+            urlPattern: /supabase\.co\/rest\/v1/,
+            handler: 'NetworkOnly',
+            options: {
+              backgroundSync: {
+                name: 'supabase-queue',
+                options: {
+                  maxRetentionTime: 24 * 60 // 24 hours
+                }
+              }
+            }
           }
-        ]
+        ],
+        importScripts: ['/sw-custom.js']
       },
       devOptions: {
         enabled: true,

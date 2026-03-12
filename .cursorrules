@@ -1,0 +1,35 @@
+# 🛡️ LG TECSERV REGRAS DESTRITIVAS PARA INTELIGÊNCIA ARTIFICIAL (NÃO IGNORAR)
+
+Estas regras são absolutas. Você (A IA) DEVE segui-las rigorosamente em todas as iterações, edições e geração de código neste projeto. A violação destas regras resultará em um trabalho reprovado pelo usuário.
+
+## 1. PRESERVAÇÃO ESTRITA DE ESCOPO (A REGRA DE OURO)
+- **NUNCA** altere código, estilos, ficheiros ou lógicas que não foram ESPECIFICAMENTE solicitadas pelo usuário.
+- Se você for solicitado a consertar um erro na "Linha 42", não reformate as linhas 1 a 41, nem as linhas 43 em diante, a menos que sejam a causa direta do erro.
+- O seu objetivo é **RESOLVER O PROBLEMA**, não "melhorar" o design architecture (arquitetura de design) ou fazer "clean code refactoring" não solicitado. Se vir código que acha que pode ser melhorado, pergunte primeiro antes de tocar nele.
+
+## 2. PRESERVAÇÃO DE INTERFACE E DESIGN SYSTEM (UI/UX)
+- **Proibido alterar layouts base:** Nunca edite classes estruturais globais do Tailwind (`z-index`, `fixed`, `absolute`, `relative`, `sticky`, `flex`, `grid`) em componentes de Layout (`DashboardLayout`, `Sidebar`, `App.tsx`) sem autorização prévia por escrito.
+- **Responsividade Sagrada:** Nenhum código gerado pode quebrar a experiência Mobile. Sempre que tocar num elemento visual, garanta que no mínimo não destruiu a versão Mobile. Preste atenção extra a caixas de diálogo (`Dialog`, `Sheet`) e modais.
+- **Ícones e Imagens:** NUNCA substitua os caminhos de ficheiros visuais (`src/assets/3d-icons`, `public/icons`) nem altere parâmetros de imagem sem permissão. Sempre contorne problemas de cache em componentes React usando ?v=2 ou query strings em src de imagens.
+- **Não Invente Estilos:** Use o padrão de cores do `tailwind.config.ts` e do `index.css`. Não crie ficheiros CSS extras ou invente estilos via tag `<style>`.
+
+## 3. PROIBIÇÃO DE ALUCINAÇÃO DE BIBLIOTECAS E IMPORTS
+- **Não Adicione Pacotes Não Solicitados:** NUNCA execute `npm install` para novos pacotes ou adicione bibliotecas à la carte que você "acha" que resolverão o problema (ex: instalar o Lodash, axios, moment.js etc.) sem perguntar e justificar a razão técnica. Use as tecnologias nativas já presentes no `package.json`.
+- Ao criar componentes, use prioritariamente os componentes SHADCN/UI já instalados na pasta `src/components/ui`.
+
+## 4. SISTEMA DE PERGUNTAS E CONFIRMAÇÕES (STOP & ASK)
+Antes de tomar uma decisão arquitetural, ou se a instrução do usuário estiver ambígua, aplique a política **"Stop & Ask"**:
+- **Pare** de gerar código.
+- **Aja** comunicando o problema identificando 2 caminhos ou opções.
+- Peça que o utilizador escolha como proceder.
+
+## 5. REGRAS DE ELIMINAÇÃO DE CÓDIGO (DELETE POLICY)
+- **NUNCA** elimine comentários estratégicos deixados por desenvolvedores humanos.
+- Se vai apagar uma função extensa, componente inteiro ou bloco visual volumoso que não seja óbvio, comunique ANTES de apagar que essa é a intenção e descreva brevemente o porquê.
+
+## 6. GESTÃO DE ESTADO E FLUXO (Supabase)
+- **Não altere consultas Supabase críticas** a menos que o erro envolva especificamente erro de Backend. 
+- Quando mexer em chamadas RLS (Row Level Security) ou Autenticação, não assuma dados nos Hooks. Consulte ficheiros da base de dados se necessário, e NUNCA passe privilégios superiores à camada Frontend (ex: forçar Service Role Key).
+
+## 7. PROVAS DE TESTES MENTAIS
+- Antes de devolver uma alteração visual complexa, deve deixar um pensamento mental provando que analisou onde aquele elemento renderiza tanto com "telas de computador" (md, lg) como telas "Mobile" (escondido ou comprimido).

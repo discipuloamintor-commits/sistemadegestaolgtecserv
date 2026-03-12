@@ -1,8 +1,9 @@
-import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt, Globe } from "lucide-react";
+import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt, Globe, Bell } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +48,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { permission, requestPermission, isSupported } = usePushNotifications();
 
   const items = isAdmin ? adminItems : membroItems;
 
@@ -84,7 +86,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
                       {typeof item.icon === "string" ? (
-                        <img src={item.icon} alt={item.title} className="h-5 w-5 object-contain" />
+                        <img src={`${item.icon}?v=2`} alt={item.title} className="h-5 w-5 object-contain" />
                       ) : (
                         <item.icon className="h-4 w-4" />
                       )}
@@ -100,6 +102,14 @@ export function AppSidebar() {
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
+              {isSupported && permission !== 'granted' && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={requestPermission} className="text-primary hover:text-primary hover:bg-primary/5">
+                    <Bell className="h-4 w-4" />
+                    {!isCollapsed && <span>Ativar Notificações</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
