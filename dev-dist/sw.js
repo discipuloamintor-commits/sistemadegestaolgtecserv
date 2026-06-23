@@ -83,7 +83,7 @@ define(['./workbox-c752dedd'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "/offline",
-    "revision": "0.b985tdbt15"
+    "revision": "0.okp1surn8d8"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/offline"), {
@@ -91,14 +91,14 @@ define(['./workbox-c752dedd'], (function (workbox) { 'use strict';
     denylist: [/^\/api/, /^\/auth/, /manifest\.webmanifest$/, /favicon\.ico$/, /robots\.txt$/, /\.png$/, /\.jpg$/, /\.svg$/]
   }));
   workbox.registerRoute(/\.(?:js|css|woff|woff2|ttf|eot)$/i, new workbox.CacheFirst({
-    "cacheName": "static-assets",
+    "cacheName": "static-assets-v3",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 100,
       maxAgeSeconds: 2592000
     })]
   }), 'GET');
   workbox.registerRoute(/\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i, new workbox.CacheFirst({
-    "cacheName": "images",
+    "cacheName": "images-v3",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 60,
       maxAgeSeconds: 2592000
