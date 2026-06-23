@@ -264,21 +264,26 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Cliente */}
       <div className="space-y-2">
         <Label htmlFor="client_id">Cliente *</Label>
-        <Select onValueChange={(value) => setValue('client_id', value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um cliente" />
-          </SelectTrigger>
-          <SelectContent>
-            {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          name="client_id"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value || ''} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100] max-h-[300px]">
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.client_id && (
           <p className="text-sm text-destructive">{errors.client_id.message}</p>
         )}
@@ -287,18 +292,30 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Categoria do Serviço */}
       <div className="space-y-2">
         <Label>Categoria do Serviço *</Label>
-        <Select onValueChange={handleCategoriaChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a categoria" />
-          </SelectTrigger>
-          <SelectContent>
-            {SERVICE_CATEGORIES.map((cat) => (
-              <SelectItem key={cat.value} value={cat.value}>
-                {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          name="categoria_servico"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value || ''}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleCategoriaChange(value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100] max-h-[300px]">
+                {SERVICE_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.categoria_servico && (
           <p className="text-sm text-destructive">{errors.categoria_servico.message}</p>
         )}
