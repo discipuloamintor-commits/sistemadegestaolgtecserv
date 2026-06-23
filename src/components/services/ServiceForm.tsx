@@ -513,19 +513,22 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Status de Pagamento */}
       <div className="space-y-2">
         <Label htmlFor="status_pagamento">Status de Pagamento *</Label>
-        <Select
-          defaultValue="pago"
-          onValueChange={(value) => setValue('status_pagamento', value as 'pago' | 'pendente' | 'devendo')}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pago">Pago</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="devendo">Devendo</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="status_pagamento"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o status" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100]">
+                <SelectItem value="pago">Pago</SelectItem>
+                <SelectItem value="pendente">Pendente</SelectItem>
+                <SelectItem value="devendo">Devendo</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.status_pagamento && (
           <p className="text-sm text-destructive">{errors.status_pagamento.message}</p>
         )}
