@@ -1,26 +1,51 @@
-## Plano: Corrigir Selects "presos" no formulário de Cadastro de Serviço
+## Plano: Redesign profissional dos documentos PDF
 
-### Problema
-No modal "Cadastrar Novo Serviço" os selects **Cliente** e **Categoria do Serviço** não respondem ao clique (ficam "presos"). O erro `React #419` no console é apenas do editor da Lovable e não afeta o app.
+Aplicar um layout único e profissional — inspirado na fatura clássica enviada — para **Fatura, Recibo e Cotação**, mantendo a logo da empresa em destaque e organização consistente.
 
-A causa real está em `src/components/services/ServiceForm.tsx`:
+### Estrutura visual (igual à imagem de referência)
 
-1. Os componentes `<Select>` são usados de forma **não-controlada** (`onValueChange={(v) => setValue(...)}` sem `value`). Como o `react-hook-form` não recebe o registro do campo via `Controller`, o estado interno do Radix Select fica dessincronizado — ao reabrir o dialog (após editar/cancelar) ele não reabre o popover.
-2. `<SelectContent>` não declara `position="popper"`. Dentro de um `DialogContent` com `overflow-y-auto` e `max-h-[90vh]`, o conteúdo do Select pode ser cortado/posicionado fora da viewport, dando a impressão de que o campo não abre.
-3. O `RadioGroup` (Tipo de Pagamento) tem o mesmo padrão e deve ser corrigido junto, por consistência.
+```text
+┌─────────────────────────────────────────────────────┐
+│ [LOGO]                                     FATURA   │
+│ NOME DA EMPRESA                       Nº: ......    │
+│ Endereço / NUIT / Contato             Data: ......  │
+├─────────────────────────────────────────────────────┤
+│  FATURAR PARA:              ENVIAR PARA:            │
+│  Nome cliente               (mesmo / endereço)      │
+│  Endereço                                           │
+│  Telefone / Email                                   │
+├─────────────────────────────────────────────────────┤
+│ VENDEDOR │ Nº PEDIDO │ DATA ENVIO │ ENVIADO │ TERMOS│
+│  ......  │  ......   │  ......    │ ......  │ ......│
+├─────────────────────────────────────────────────────┤
+│ QTD │ DESCRIÇÃO              │ PREÇO UNIT. │ TOTAL  │
+│  1  │ Serviço + detalhes...  │   ......    │ ...... │
+│  1  │ Domínio (se aplicável) │   ......    │ ...... │
+│  1  │ Hospedagem             │   ......    │ ...... │
+│                                                     │
+│                              SUBTOTAL: ............ │
+│                              IMPOSTO:  ............ │
+│                              TOTAL:    ............ │
+├─────────────────────────────────────────────────────┤
+│ Observações / Termos de pagamento                   │
+│              OBRIGADO PELO SEU NEGÓCIO              │
+└─────────────────────────────────────────────────────┘
+```
 
-### Mudanças
+### Alterações por arquivo
 
-**Arquivo: `src/components/services/ServiceForm.tsx`**
+1. **`src/components/pdf/_invoiceStyles.ts`** (novo) — folha de estilos compartilhada (`@react-pdf/renderer`) com paleta sóbria (cinza/preto + accent da marca), tipografia Helvetica, tabela com cabeçalho preenchido, linhas zebradas e bloco de totais alinhado à direita.
 
-- Importar `Controller` de `react-hook-form`.
-- Trocar os `<Select>` de **Cliente**, **Categoria do Serviço** e **Status de Pagamento** para usar `<Controller>`, passando `value` e `onValueChange` corretamente conectados ao form.
-- Adicionar `position="popper"` em todos os `<SelectContent>` para garantir que o popover apareça por cima do Dialog mesmo com scroll.
-- Converter o `<RadioGroup>` de Tipo de Pagamento para usar `<Controller>` também (com `value` controlado), removendo o `defaultValue` solto.
-- Garantir que ao editar um serviço existente os Selects mostrem o valor selecionado (hoje só o `setValue` no `useEffect` não reflete visualmente no Radix Select sem `value`).
+2. **`src/components/pdf/FaturaPDF.tsx`** — reescrito no novo layout. Título "FATURA", numeração `FAT-AAAAMMDD-XXXXXX`, blocos "Faturar para" e "Enviar para" (mesmo cliente), meta-tabela (Vendedor = empresa, Nº pedido = id curto, Data, Enviado por, Termos = forma de pagamento), tabela de itens gerada a partir de `servico` + `detalhes_servico` (linhas extras para domínio, hospedagem, hospedagem gratuita marcada como "Cortesia — X meses", orçamento de tráfego, etc.), bloco de totais à direita.
 
-Nenhuma mudança em banco de dados, PDFs ou outras telas. A correção é puramente no formulário.
+3. **`src/components/pdf/ReciboPDF.tsx`** — mesma estrutura visual; título "RECIBO" e linha de declaração ("Recebi de … a quantia de …") logo abaixo do cabeçalho; tabela de itens igual; totais marcados como **PAGO**.
 
-### Resultado esperado
-- Clicar em **Cliente** abre a lista; clicar em **Categoria** abre a lista e dispara os campos condicionais (Website / Tráfego Pago).
-- O Select mantém o item selecionado visível e funciona corretamente tanto em "Cadastrar" quanto em "Editar".
+4. **`src/components/pdf/CotacaoPDF.tsx`** — título "COTAÇÃO / PROPOSTA"; meta-tabela com Validade da proposta em vez de Data envio; mesma tabela de itens e totais; rodapé com termos de aceite.
+
+### Detalhes técnicos
+
+- A logo continua sendo carregada de `src/assets/logo.png` e renderizada à esquerda do cabeçalho (mantém o upload do usuário já existente).
+- Itens da tabela são montados dinamicamente: serviço principal + linhas adicionais conforme `detalhes_servico` (domínio, hospedagem paga, hospedagem cortesia, orçamento de anúncios, plataformas, campos "outros").
+- Paleta: fundo branco, cabeçalho de tabela `#1f2937` com texto branco, linhas alternadas `#f9fafb`, accent da marca apenas no título e linha do total.
+- Sem alterações em formulários, banco de dados, regras de negócio ou outras telas — apenas os 3 componentes PDF e a folha de estilos compartilhada.
+- `PropostaPDF.tsx`, `AvisoPagamentoPDF.tsx` e `PropostaContratoMensalPDF.tsx` ficam inalterados (não foram pedidos).
