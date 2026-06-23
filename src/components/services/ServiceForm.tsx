@@ -441,23 +441,29 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Tipo de Pagamento */}
       <div className="space-y-2">
         <Label>Tipo de Pagamento *</Label>
-        <RadioGroup
-          defaultValue="fixo"
-          onValueChange={(value) => setValue('tipo_pagamento', value as 'fixo' | 'com_investimento')}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="fixo" id="fixo" />
-            <Label htmlFor="fixo" className="font-normal cursor-pointer">
-              Valor Fixo (sem investimento)
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="com_investimento" id="com_investimento" />
-            <Label htmlFor="com_investimento" className="font-normal cursor-pointer">
-              Valor com Investimento
-            </Label>
-          </div>
-        </RadioGroup>
+        <Controller
+          name="tipo_pagamento"
+          control={control}
+          render={({ field }) => (
+            <RadioGroup
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="fixo" id="fixo" />
+                <Label htmlFor="fixo" className="font-normal cursor-pointer">
+                  Valor Fixo (sem investimento)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="com_investimento" id="com_investimento" />
+                <Label htmlFor="com_investimento" className="font-normal cursor-pointer">
+                  Valor com Investimento
+                </Label>
+              </div>
+            </RadioGroup>
+          )}
+        />
       </div>
 
       {/* Valor Total */}
