@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,10 +82,13 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
+      client_id: '',
+      categoria_servico: '',
       tipo_pagamento: 'fixo',
       status_pagamento: 'pago',
       hospedagem_gratuita: false,
@@ -261,21 +264,26 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Cliente */}
       <div className="space-y-2">
         <Label htmlFor="client_id">Cliente *</Label>
-        <Select onValueChange={(value) => setValue('client_id', value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um cliente" />
-          </SelectTrigger>
-          <SelectContent>
-            {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          name="client_id"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value || ''} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100] max-h-[300px]">
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.client_id && (
           <p className="text-sm text-destructive">{errors.client_id.message}</p>
         )}
@@ -284,18 +292,30 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Categoria do Serviço */}
       <div className="space-y-2">
         <Label>Categoria do Serviço *</Label>
-        <Select onValueChange={handleCategoriaChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a categoria" />
-          </SelectTrigger>
-          <SelectContent>
-            {SERVICE_CATEGORIES.map((cat) => (
-              <SelectItem key={cat.value} value={cat.value}>
-                {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          name="categoria_servico"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value || ''}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleCategoriaChange(value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100] max-h-[300px]">
+                {SERVICE_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.categoria_servico && (
           <p className="text-sm text-destructive">{errors.categoria_servico.message}</p>
         )}
@@ -421,23 +441,29 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Tipo de Pagamento */}
       <div className="space-y-2">
         <Label>Tipo de Pagamento *</Label>
-        <RadioGroup
-          defaultValue="fixo"
-          onValueChange={(value) => setValue('tipo_pagamento', value as 'fixo' | 'com_investimento')}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="fixo" id="fixo" />
-            <Label htmlFor="fixo" className="font-normal cursor-pointer">
-              Valor Fixo (sem investimento)
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="com_investimento" id="com_investimento" />
-            <Label htmlFor="com_investimento" className="font-normal cursor-pointer">
-              Valor com Investimento
-            </Label>
-          </div>
-        </RadioGroup>
+        <Controller
+          name="tipo_pagamento"
+          control={control}
+          render={({ field }) => (
+            <RadioGroup
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="fixo" id="fixo" />
+                <Label htmlFor="fixo" className="font-normal cursor-pointer">
+                  Valor Fixo (sem investimento)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="com_investimento" id="com_investimento" />
+                <Label htmlFor="com_investimento" className="font-normal cursor-pointer">
+                  Valor com Investimento
+                </Label>
+              </div>
+            </RadioGroup>
+          )}
+        />
       </div>
 
       {/* Valor Total */}
@@ -487,19 +513,22 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       {/* Status de Pagamento */}
       <div className="space-y-2">
         <Label htmlFor="status_pagamento">Status de Pagamento *</Label>
-        <Select
-          defaultValue="pago"
-          onValueChange={(value) => setValue('status_pagamento', value as 'pago' | 'pendente' | 'devendo')}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pago">Pago</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="devendo">Devendo</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="status_pagamento"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o status" />
+              </SelectTrigger>
+              <SelectContent position="popper" className="z-[100]">
+                <SelectItem value="pago">Pago</SelectItem>
+                <SelectItem value="pendente">Pendente</SelectItem>
+                <SelectItem value="devendo">Devendo</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.status_pagamento && (
           <p className="text-sm text-destructive">{errors.status_pagamento.message}</p>
         )}
