@@ -82,10 +82,13 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
     defaultValues: {
+      client_id: '',
+      categoria_servico: '',
       tipo_pagamento: 'fixo',
       status_pagamento: 'pago',
       hospedagem_gratuita: false,
