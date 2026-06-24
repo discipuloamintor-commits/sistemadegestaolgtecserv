@@ -589,7 +589,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                 {/* Filter */}
                 <div className="flex items-center gap-4">
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
-                        <SelectTrigger className="w-[200px]">
+                        <SelectTrigger className="w-full sm:w-[200px]">
                             <SelectValue placeholder="Filtrar por status" />
                         </SelectTrigger>
                         <SelectContent position="popper" className="z-[100] bg-popover">
