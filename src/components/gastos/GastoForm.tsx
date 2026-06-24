@@ -195,13 +195,13 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Forma de Pagamento *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a forma" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100] bg-popover">
                     <SelectItem value="dinheiro">Dinheiro</SelectItem>
                     <SelectItem value="transferencia">Transferência</SelectItem>
                     <SelectItem value="cartao">Cartão</SelectItem>
