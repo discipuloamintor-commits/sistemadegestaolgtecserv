@@ -718,7 +718,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                                            className="flex-1 sm:flex-initial border-blue-300 text-blue-700 hover:bg-blue-50"
                                             onClick={() => handleEdit(payment)}
                                         >
                                             <Pencil className="w-4 h-4 mr-2" />
