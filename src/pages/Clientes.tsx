@@ -171,73 +171,79 @@ export default function Clientes({ isAdmin = false }: ClientesProps) {
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
           {filteredClients.map((client) => (
             <Card key={client.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12">
+              <CardHeader className="p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0">
                     <AvatarImage src={client.foto_url || undefined} />
                     <AvatarFallback>
                       {client.nome.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{client.nome}</CardTitle>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-sm sm:text-base line-clamp-2 break-words">{client.nome}</CardTitle>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2 text-sm">
+              <CardContent className="p-3 sm:p-4 pt-0 space-y-2">
+                <div className="space-y-1.5 text-xs sm:text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="w-4 h-4" />
-                    <span>{client.telefone}</span>
+                    <Phone className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{client.telefone}</span>
                   </div>
                   {client.email && (
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{client.email}</span>
                     </div>
                   )}
                   {client.endereco && (
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-3.5 h-3.5 shrink-0" />
                       <span className="truncate">{client.endereco}</span>
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2 pt-2">
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => navigate(`/clientes/${client.id}`)}
-                    className="flex-1"
+                    className="w-full sm:flex-1 h-8 text-xs"
                   >
-                    <Eye className="w-4 h-4 mr-1" />
-                    Ver Detalhes
+                    <Eye className="w-3.5 h-3.5 sm:mr-1" />
+                    <span className="hidden sm:inline">Ver Detalhes</span>
+                    <span className="sm:hidden ml-1">Ver</span>
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingClient(client);
-                      setDialogOpen(true);
-                    }}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setDeleteDialog({ open: true, clientId: client.id })}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="grid grid-cols-2 sm:flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-full sm:w-8 px-0"
+                      onClick={() => {
+                        setEditingClient(client);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-full sm:w-8 px-0"
+                      onClick={() => setDeleteDialog({ open: true, clientId: client.id })}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+
 
         {filteredClients.length === 0 && (
           <div className="text-center py-12">
