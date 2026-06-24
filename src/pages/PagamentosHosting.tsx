@@ -589,7 +589,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                 {/* Filter */}
                 <div className="flex items-center gap-4">
                     <Select value={filterStatus} onValueChange={setFilterStatus}>
-                        <SelectTrigger className="w-[200px]">
+                        <SelectTrigger className="w-full sm:w-[200px]">
                             <SelectValue placeholder="Filtrar por status" />
                         </SelectTrigger>
                         <SelectContent position="popper" className="z-[100] bg-popover">
@@ -601,7 +601,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                 </div>
 
                 {/* Payment cards */}
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                     {filteredPayments.map((payment, index) => {
                         const clientData = getClientData(payment);
                         const total = Number(payment.valor_dominio || 0) + Number(payment.valor_hospedagem || 0);
@@ -627,7 +627,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         <div>
                                             <p className="text-xs text-muted-foreground">{payment.tipo === 'ambos' ? 'Venc. Domínio' : 'Vencimento'}</p>
                                             <p className={`text-sm font-semibold ${payment.status === 'pendente' && payment.data_vencimento < hoje ? 'text-red-600' : ''}`}>
@@ -696,7 +696,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             fileName={`aviso-pagamento-${clientData.nome?.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                                         >
                                             {({ loading: pdfLoading }) => (
-                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="flex-1 sm:flex-initial border-amber-300 text-amber-700 hover:bg-amber-50">
                                                     <FileDown className="w-4 h-4 mr-2" />
                                                     {pdfLoading ? 'Gerando...' : 'Aviso PDF'}
                                                 </Button>
@@ -707,7 +707,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="border-green-300 text-green-700 hover:bg-green-50"
+                                                className="flex-1 sm:flex-initial border-green-300 text-green-700 hover:bg-green-50"
                                                 onClick={() => handleMarkPaid(payment)}
                                             >
                                                 <CheckCircle2 className="w-4 h-4 mr-2" />
@@ -718,7 +718,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                                            className="flex-1 sm:flex-initial border-blue-300 text-blue-700 hover:bg-blue-50"
                                             onClick={() => handleEdit(payment)}
                                         >
                                             <Pencil className="w-4 h-4 mr-2" />
@@ -728,7 +728,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="border-red-300 text-red-700 hover:bg-red-50"
+                                            className="flex-1 sm:flex-initial border-red-300 text-red-700 hover:bg-red-50"
                                             onClick={() => {
                                                 setPaymentToDelete(payment.id);
                                                 setDeleteDialogOpen(true);
