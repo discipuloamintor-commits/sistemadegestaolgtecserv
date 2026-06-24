@@ -418,6 +418,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                         if (!open) {
                             setEditingPayment(null);
                             resetForm();
+                            setTimeout(() => { document.body.style.pointerEvents = ''; }, 100);
                         }
                     }}>
                         <DialogTrigger asChild>
@@ -429,7 +430,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                 Novo Pagamento
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto dialog-content-mobile">
+                        <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6 dialog-content-mobile">
                             <DialogHeader>
                                 <DialogTitle>{editingPayment ? 'Editar Pagamento' : 'Registar Pagamento de Domínio/Hospedagem'}</DialogTitle>
                             </DialogHeader>

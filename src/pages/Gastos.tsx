@@ -145,14 +145,20 @@ export default function Gastos({ isAdmin = false }: GastosProps) {
             <h1 className="text-3xl font-bold">Gastos e Despesas</h1>
             <p className="text-muted-foreground">Gerencie suas despesas operacionais</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setEditingGasto(null);
+              setTimeout(() => { document.body.style.pointerEvents = ''; }, 100);
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingGasto(null)}>
+              <Button onClick={() => setEditingGasto(null)} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Gasto
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>{editingGasto ? 'Editar Gasto' : 'Novo Gasto'}</DialogTitle>
               </DialogHeader>
