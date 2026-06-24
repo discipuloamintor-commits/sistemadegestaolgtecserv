@@ -728,7 +728,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="border-red-300 text-red-700 hover:bg-red-50"
+                                            className="flex-1 sm:flex-initial border-red-300 text-red-700 hover:bg-red-50"
                                             onClick={() => {
                                                 setPaymentToDelete(payment.id);
                                                 setDeleteDialogOpen(true);
