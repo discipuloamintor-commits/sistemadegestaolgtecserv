@@ -627,7 +627,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         <div>
                                             <p className="text-xs text-muted-foreground">{payment.tipo === 'ambos' ? 'Venc. Domínio' : 'Vencimento'}</p>
                                             <p className={`text-sm font-semibold ${payment.status === 'pendente' && payment.data_vencimento < hoje ? 'text-red-600' : ''}`}>
