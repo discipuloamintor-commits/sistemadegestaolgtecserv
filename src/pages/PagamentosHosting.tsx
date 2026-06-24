@@ -696,7 +696,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             fileName={`aviso-pagamento-${clientData.nome?.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                                         >
                                             {({ loading: pdfLoading }) => (
-                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="flex-1 sm:flex-initial border-amber-300 text-amber-700 hover:bg-amber-50">
                                                     <FileDown className="w-4 h-4 mr-2" />
                                                     {pdfLoading ? 'Gerando...' : 'Aviso PDF'}
                                                 </Button>
