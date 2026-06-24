@@ -276,59 +276,63 @@ export default function Gastos({ isAdmin = false }: GastosProps) {
             ) : (
               <div className="space-y-4">
                 {filteredGastos.map((gasto) => (
-                  <div key={gasto.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{gasto.descricao}</h3>
-                        <Badge variant="outline">{getCategoriaLabel(gasto.categoria)}</Badge>
+                  <div key={gasto.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-sm sm:text-base break-words">{gasto.descricao}</h3>
+                        <Badge variant="outline" className="text-xs">{getCategoriaLabel(gasto.categoria)}</Badge>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{format(new Date(gasto.data_gasto), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                        <span>{format(new Date(gasto.data_gasto), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}</span>
                         <span>•</span>
                         <span>{getFormaPagamentoLabel(gasto.forma_pagamento)}</span>
                       </div>
                       {gasto.observacoes && (
-                        <p className="text-sm text-muted-foreground">{gasto.observacoes}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground break-words">{gasto.observacoes}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-destructive">{Number(gasto.valor).toFixed(2)} MT</div>
+                    <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                      <div className="text-left sm:text-right">
+                        <div className="text-base sm:text-lg font-bold text-destructive">{Number(gasto.valor).toFixed(2)} MT</div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {gasto.comprovativo_url && (
                           <Button
                             variant="outline"
-                            size="icon"
+                            size="sm"
+                            className="h-8 w-8 p-0"
                             onClick={() => window.open(gasto.comprovativo_url!, '_blank')}
                           >
-                            <Download className="h-4 w-4" />
+                            <Download className="h-3.5 w-3.5" />
                           </Button>
                         )}
                         <Button
                           variant="outline"
-                          size="icon"
+                          size="sm"
+                          className="h-8 w-8 p-0"
                           onClick={() => {
                             setEditingGasto(gasto);
                             setDialogOpen(true);
                           }}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="outline"
-                          size="icon"
+                          size="sm"
+                          className="h-8 w-8 p-0"
                           onClick={() => {
                             setGastoToDelete(gasto.id);
                             setDeleteDialogOpen(true);
                           }}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>
                   </div>
                 ))}
+
               </div>
             )}
           </CardContent>
