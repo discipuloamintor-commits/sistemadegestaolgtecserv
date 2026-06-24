@@ -707,7 +707,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="border-green-300 text-green-700 hover:bg-green-50"
+                                                className="flex-1 sm:flex-initial border-green-300 text-green-700 hover:bg-green-50"
                                                 onClick={() => handleMarkPaid(payment)}
                                             >
                                                 <CheckCircle2 className="w-4 h-4 mr-2" />
