@@ -133,7 +133,7 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
           )}
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="categoria"
@@ -174,7 +174,7 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="data_gasto"
