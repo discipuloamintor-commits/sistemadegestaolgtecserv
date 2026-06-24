@@ -408,7 +408,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Pagamentos de Domínio & Hospedagem</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Pagamentos de Domínio & Hospedagem</h1>
                         <p className="text-muted-foreground">
                             Gestão de renovações e pagamentos recorrentes
                         </p>
