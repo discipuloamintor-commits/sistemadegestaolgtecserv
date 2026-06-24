@@ -1,51 +1,54 @@
-## Plano: Destravar formulários (Gastos, Pagamentos Hosting) e reforçar responsividade mobile
+## Objetivo
 
-### Problema
-Nos diálogos de **Novo Gasto** e **Registar Pagamento de Domínio/Hospedagem**, os campos Select (Cliente, Categoria, Tipo, Forma de Pagamento, Período) ficam travados e não abrem/selecionam — exatamente o mesmo bug que já corrigimos no `ServiceForm` (Radix Select dentro de Dialog sem `position="popper"` e sem controle explícito de `value`/`onValueChange`).
+Melhorar a responsividade em telas muito pequenas (≤360px) nas páginas **Clientes**, **PagamentosHosting** e **Gastos**, mantendo um layout profissional com melhor aproveitamento de espaço.
 
-Em telas pequenas, alguns diálogos extrapolam a largura e os botões/labels ficam cortados.
+## 1. `src/pages/Clientes.tsx`
 
-### Correções
+**Header (botão "Novo Cliente" ampliando o espaço):**
+- Trocar `flex items-center justify-between` por `flex flex-col sm:flex-row sm:items-center justify-between gap-3`.
+- Título: `text-2xl sm:text-3xl`.
+- Botão "Novo Cliente": `w-full sm:w-auto` (no mobile vira full-width abaixo do título em vez de empurrar o layout).
+- DialogContent: `w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6`.
 
-**1. `src/components/gastos/GastoForm.tsx`**
-- Adicionar `position="popper"` e `className="z-[60] bg-popover"` em todos os `SelectContent` (Categoria, Forma de Pagamento).
-- Trocar `defaultValue={field.value}` por `value={field.value}` no `<Select>` controlado pelo `FormField` (garante sincronia com react-hook-form e evita o estado travado).
+**Grid de clientes (2 lado a lado no mobile):**
+- Trocar `grid gap-4 md:grid-cols-2 lg:grid-cols-3` por `grid gap-3 grid-cols-2 lg:grid-cols-3`.
 
-**2. `src/pages/PagamentosHosting.tsx`** (form inline no Dialog)
-- Adicionar `position="popper"` + `className="z-[60] bg-popover"` em todos os `SelectContent` do form (Cliente, Tipo, Período).
-- Manter `value=` controlado (já está), apenas garantir que o `Select` tenha `key` quando o diálogo reabrir em modo edição/criação, para resetar corretamente.
-- Ao fechar o `Dialog`, garantir limpeza de `document.body.style.pointerEvents` (workaround conhecido do Radix Dialog que às vezes deixa o body com `pointer-events:none`, travando tudo). Implementar via `onOpenChange` chamando `setTimeout(() => { document.body.style.pointerEvents = ''; }, 0)`.
+**Cards mais compactos (blocos menores):**
+- `CardHeader`: padding reduzido `p-3 sm:p-4`.
+- Avatar: `h-10 w-10 sm:h-12 sm:w-12`.
+- `CardTitle`: `text-sm sm:text-base` com `line-clamp-1` para nomes longos.
+- `CardContent`: `p-3 sm:p-4 pt-0 space-y-2`.
+- Textos de telefone/email/endereço: `text-xs sm:text-sm`, com `truncate` em todos.
+- Ações: empilhar verticalmente no mobile — botão "Ver Detalhes" em linha própria (`w-full`), e Editar + Eliminar lado a lado abaixo (`grid grid-cols-2 gap-2`). Em `sm:` voltar ao layout horizontal atual.
+- Reduzir tamanho dos ícones e usar `size="sm"` consistentemente.
 
-**3. Varredura preventiva nos demais formulários em Dialog**
-Aplicar o mesmo padrão (`position="popper"` + `value` controlado) nos Selects de:
-- `src/pages/Servicos.tsx` (filtros/seletor de status)
-- `src/pages/Gastos.tsx` (filtros)
-- `src/pages/admin/GerenciarUsuarios.tsx` (seleção de role/status)
-- `src/components/services/PropostaContratoForm.tsx`
+## 2. `src/pages/Gastos.tsx`
 
-E o mesmo workaround de `pointer-events` em qualquer `Dialog` que aninhe Select/Popover/AlertDialog.
+**Cards de estatísticas:** `grid gap-3 grid-cols-1 sm:grid-cols-3` (atualmente `md:grid-cols-3` deixa empilhado em telas médias-baixas).
 
-**4. Responsividade rigorosa para celulares pequenos (≤360px)**
+**Lista de gastos (item atual estoura no mobile pois usa `flex items-center justify-between` com muito conteúdo):**
+- Trocar wrapper do item por `flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4`.
+- Cabeçalho do item: permitir quebra — `flex flex-wrap items-center gap-2`, título com `text-sm sm:text-base`, badge com `text-xs`.
+- Metadados: `flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm`.
+- Bloco de valor + ações: alinhar com `flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto`. Valor `text-base sm:text-lg`.
+- Botões de ação: `size="sm"` (em vez de `size="icon"` h-10), `h-8 w-8`.
 
-Padrão a aplicar em todos os `DialogContent` críticos:
-- `className="w-[calc(100vw-1rem)] max-w-lg sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6"`
-- Trocar grids `md:grid-cols-2` por `grid-cols-1 sm:grid-cols-2` onde ainda houver `md:`.
-- Botões de ação: `flex-col sm:flex-row gap-2 w-full` (botão principal `w-full sm:w-auto`).
-- Tabelas que hoje quebram no mobile: envolver em `<div className="overflow-x-auto -mx-4 px-4">` ou substituir por cards empilhados em `<640px` (Gastos, PagamentosHosting, Servicos, Clientes).
-- Tipografia de títulos: `text-2xl sm:text-3xl` no lugar de `text-3xl` fixo.
-- Cards de KPI (Total Pendente etc.): `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3`.
+**Card "Filtros":** `CardContent` com `p-4`; já está OK no grid.
 
-Páginas revisadas para responsividade:
-- `Dashboard`, `AdminDashboard`
-- `Servicos`, `Gastos`, `PagamentosHosting`
-- `Clientes`, `GerenciarUsuarios`
-- `MinhaEmpresa` / formulários de perfil
+## 3. `src/pages/PagamentosHosting.tsx`
 
-### Detalhes técnicos
-- O bug raiz é uma incompatibilidade do `Radix Select` (shadcn) dentro de `Dialog` quando `SelectContent` usa o portal padrão sem `position="popper"`: o overlay do Dialog intercepta cliques e o trigger fica visualmente "travado".
-- O workaround `document.body.style.pointerEvents = ''` no `onOpenChange(false)` resolve o caso em que o Radix Dialog não limpa o estilo ao fechar via overlay/ESC enquanto um Select estava aberto.
-- Nenhuma migração de banco. Apenas frontend (UI/controle de form). Sem mudança de regras de negócio.
+**Filtro de status:** `w-[200px]` → `w-full sm:w-[200px]`.
 
-### Fora de escopo
-- Não mexer nos PDFs nem na lógica de cálculo.
-- Não alterar schema do banco.
+**Cards de pagamento (grid interno estoura em telas pequenas):**
+- `CardHeader` em mobile: já tem `flex items-start justify-between`, OK; reduzir padding `p-4`.
+- Grid de detalhes: `grid grid-cols-2 md:grid-cols-4 gap-4` → `grid grid-cols-2 md:grid-cols-4 gap-3` com `text-xs` consistente nos labels, valores `text-sm`.
+- Botões de ação: `flex flex-wrap gap-2` (já existe) — garantir que cada Button use `size="sm"` e `flex-1 sm:flex-initial` para preencher quando quebrar linha.
+- Lista de pagamentos: passar wrapper externo de `grid gap-4` para `grid gap-3`.
+
+**Form Dialog (já em popper z-[100]):** confirmar `w-[calc(100vw-1rem)] sm:max-w-lg` já aplicado; nada a mudar.
+
+## Notas
+
+- Mudanças puramente de layout/CSS Tailwind. Sem alterar lógica de dados, queries ou handlers.
+- Sem mexer em PDFs, schema ou business logic.
+- Sem mexer no `ServiceForm`, `GastoForm` interno (já refeitos antes), apenas containers das páginas.

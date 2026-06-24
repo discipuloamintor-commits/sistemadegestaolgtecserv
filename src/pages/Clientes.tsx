@@ -122,21 +122,27 @@ export default function Clientes({ isAdmin = false }: ClientesProps) {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold">{isAdmin ? 'Todos os Clientes' : 'Meus Clientes'}</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">{isAdmin ? 'Todos os Clientes' : 'Meus Clientes'}</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
               Gerencie seus clientes e histórico de serviços
             </p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setEditingClient(null);
+              setTimeout(() => { document.body.style.pointerEvents = ''; }, 100);
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingClient(null)}>
+              <Button onClick={() => setEditingClient(null)} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Cliente
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>
                   {editingClient ? 'Editar Cliente' : 'Novo Cliente'}
@@ -153,6 +159,7 @@ export default function Clientes({ isAdmin = false }: ClientesProps) {
             </DialogContent>
           </Dialog>
         </div>
+
 
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
