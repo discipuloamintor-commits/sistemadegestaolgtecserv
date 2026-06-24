@@ -601,7 +601,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                 </div>
 
                 {/* Payment cards */}
-                <div className="grid gap-4">
+                <div className="grid gap-3">
                     {filteredPayments.map((payment, index) => {
                         const clientData = getClientData(payment);
                         const total = Number(payment.valor_dominio || 0) + Number(payment.valor_hospedagem || 0);
