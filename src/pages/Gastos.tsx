@@ -140,19 +140,25 @@ export default function Gastos({ isAdmin = false }: GastosProps) {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Gastos e Despesas</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Gastos e Despesas</h1>
             <p className="text-muted-foreground">Gerencie suas despesas operacionais</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setEditingGasto(null);
+              setTimeout(() => { document.body.style.pointerEvents = ''; }, 100);
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingGasto(null)}>
+              <Button onClick={() => setEditingGasto(null)} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Gasto
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>{editingGasto ? 'Editar Gasto' : 'Novo Gasto'}</DialogTitle>
               </DialogHeader>
@@ -222,7 +228,7 @@ export default function Gastos({ isAdmin = false }: GastosProps) {
             <CardTitle>Filtros</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Categoria</label>
                 <Select value={filterCategoria} onValueChange={setFilterCategoria}>

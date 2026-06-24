@@ -408,7 +408,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Pagamentos de Domínio & Hospedagem</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Pagamentos de Domínio & Hospedagem</h1>
                         <p className="text-muted-foreground">
                             Gestão de renovações e pagamentos recorrentes
                         </p>
@@ -418,6 +418,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                         if (!open) {
                             setEditingPayment(null);
                             resetForm();
+                            setTimeout(() => { document.body.style.pointerEvents = ''; }, 100);
                         }
                     }}>
                         <DialogTrigger asChild>
@@ -429,7 +430,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                 Novo Pagamento
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto dialog-content-mobile">
+                        <DialogContent className="w-[calc(100vw-1rem)] sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6 dialog-content-mobile">
                             <DialogHeader>
                                 <DialogTitle>{editingPayment ? 'Editar Pagamento' : 'Registar Pagamento de Domínio/Hospedagem'}</DialogTitle>
                             </DialogHeader>
@@ -438,7 +439,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                     <Label>Cliente *</Label>
                                     <Select value={formClientId} onValueChange={setFormClientId}>
                                         <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent position="popper" className="z-[100] bg-popover">
                                             {clients.map(c => (
                                                 <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                                             ))}
@@ -450,7 +451,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                     <Label>Tipo</Label>
                                     <Select value={formTipo} onValueChange={setFormTipo}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent position="popper" className="z-[100] bg-popover">
                                             <SelectItem value="ambos">Domínio + Hospedagem</SelectItem>
                                             <SelectItem value="dominio">Apenas Domínio</SelectItem>
                                             <SelectItem value="hospedagem">Apenas Hospedagem</SelectItem>
@@ -517,7 +518,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Label>Período de Renovação</Label>
                                         <Select value={formPeriodo} onValueChange={setFormPeriodo}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent position="popper" className="z-[100] bg-popover">
                                                 <SelectItem value="anual">Anual</SelectItem>
                                                 <SelectItem value="semestral">Semestral</SelectItem>
                                                 <SelectItem value="mensal">Mensal</SelectItem>
@@ -591,7 +592,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                         <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder="Filtrar por status" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent position="popper" className="z-[100] bg-popover">
                             <SelectItem value="todos">Todos</SelectItem>
                             <SelectItem value="pendente">Pendentes</SelectItem>
                             <SelectItem value="pago">Pagos</SelectItem>

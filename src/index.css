@@ -156,3 +156,15 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+/* Safety: ensure Radix Dialog/Popover never leaves the body unclickable */
+body[data-scroll-locked] { overflow: hidden !important; }
+body { pointer-events: auto !important; }
+
+/* Mobile dialog: garante largura segura em telas pequenas */
+.dialog-content-mobile {
+  width: calc(100vw - 1rem) !important;
+  max-width: 32rem;
+}
+@media (min-width: 640px) {
+  .dialog-content-mobile { width: auto !important; }
+}

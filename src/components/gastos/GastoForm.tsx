@@ -133,20 +133,20 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
           )}
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="categoria"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Categoria *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a categoria" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100] bg-popover">
                     <SelectItem value="operacional">Operacional</SelectItem>
                     <SelectItem value="marketing">Marketing</SelectItem>
                     <SelectItem value="infraestrutura">Infraestrutura</SelectItem>
@@ -174,7 +174,7 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="data_gasto"
@@ -195,13 +195,13 @@ export default function GastoForm({ onSuccess, gasto }: GastoFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Forma de Pagamento *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a forma" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent position="popper" className="z-[100] bg-popover">
                     <SelectItem value="dinheiro">Dinheiro</SelectItem>
                     <SelectItem value="transferencia">Transferência</SelectItem>
                     <SelectItem value="cartao">Cartão</SelectItem>
