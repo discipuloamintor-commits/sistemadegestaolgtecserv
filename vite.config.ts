@@ -34,25 +34,25 @@ export default defineConfig(({ mode }) => ({
         lang: 'pt-PT',
         icons: [
           {
-            src: '/icons/icon-96x96.png?v=2',
+            src: '/icons/icon-96x96.png',
             sizes: '96x96',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-192x192.png?v=2',
+            src: '/icons/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-512x512.png?v=2',
+            src: '/icons/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-maskable-512x512.png?v=2',
+            src: '/icons/icon-maskable-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
