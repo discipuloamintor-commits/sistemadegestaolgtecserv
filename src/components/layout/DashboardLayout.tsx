@@ -139,20 +139,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 flex-shrink-0 flex-1 min-w-[4.5rem] transition-all duration-300 ${isActive ? "text-primary transform -translate-y-1" : "text-gray-400 font-medium opacity-70"
+                  `flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 px-0.5 transition-all duration-300 ${isActive ? "text-primary transform -translate-y-1" : "text-gray-400 font-medium opacity-70"
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div className="relative flex justify-center items-center w-8 h-8 md:w-9 md:h-9">
+                    <div className="relative flex justify-center items-center w-6 h-6 md:w-8 md:h-8">
                       {typeof item.icon === "string" ? (
-                        <img src={`${item.icon}?v=2`} alt={item.label} className={`w-8 h-8 md:w-9 md:h-9 object-contain drop-shadow-sm transition-all duration-300 ${isActive ? 'scale-110 drop-shadow-md' : ''}`} />
+                        <img src={`${item.icon}?v=2`} alt={item.label} className={`w-6 h-6 md:w-8 md:h-8 object-contain drop-shadow-sm transition-all duration-300 ${isActive ? 'scale-110 drop-shadow-md' : ''}`} />
                       ) : (
-                        <item.icon className={`w-6 h-6 md:w-7 md:h-7 transition-all duration-300 ${isActive ? 'scale-110 drop-shadow-md text-primary' : 'text-gray-400'}`} />
+                        <item.icon className={`w-5 h-5 md:w-6 md:h-6 transition-all duration-300 ${isActive ? 'scale-110 drop-shadow-md text-primary' : 'text-gray-400'}`} />
                       )}
                     </div>
-                    <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-tighter truncate w-full text-center">{item.label}</span>
+                    <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-tighter truncate w-full text-center mt-1">{item.label}</span>
                   </>
                 )}
               </NavLink>
