@@ -281,30 +281,13 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="client_id">Cliente *</Label>
-        <Controller
-          name="client_id"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value || ''} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="z-[100] max-h-[300px]">
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-        {errors.client_id && (
-          <p className="text-sm text-destructive">{errors.client_id.message}</p>
-        )}
-      </div>
+      <RecipientPicker
+        value={recipient}
+        onChange={setRecipient}
+        isAdmin={isAdmin}
+        requireSaveOnManual
+      />
+
 
       {/* Categoria do Serviço */}
       <div className="space-y-2">
