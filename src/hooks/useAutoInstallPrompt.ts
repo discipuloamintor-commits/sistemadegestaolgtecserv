@@ -36,14 +36,8 @@ export const useAutoInstallPrompt = () => {
       return;
     }
 
-    // Check if we've already dismissed the prompt
-    const promptDismissed = localStorage.getItem('pwa-prompt-dismissed');
-    console.log('💾 PWA: Prompt dismisssed?', promptDismissed);
-    
-    if (promptDismissed === 'true') {
-      console.log('⚠️ PWA: Prompt foi dispensado anteriormente');
-      return;
-    }
+    // Removido o bloqueio do localStorage para forçar o banner a aparecer sempre
+    // se o app não estiver instalado.
 
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
