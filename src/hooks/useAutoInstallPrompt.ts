@@ -85,13 +85,14 @@ export const useAutoInstallPrompt = () => {
     if (choiceResult.outcome === 'accepted') {
       console.log('✅ PWA: Instalação aceita!');
       setIsInstalled(true);
+      localStorage.removeItem('pwa-prompt-dismissed');
     } else {
       console.log('❌ PWA: Instalação rejeitada');
+      localStorage.setItem('pwa-prompt-dismissed', 'true');
     }
     
     setDeferredPrompt(null);
     setCanShowPrompt(false);
-    localStorage.setItem('pwa-prompt-dismissed', 'true');
   };
 
   const dismissPrompt = () => {
