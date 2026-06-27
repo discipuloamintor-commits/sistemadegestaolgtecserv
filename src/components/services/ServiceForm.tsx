@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+  RecipientPicker, RecipientState, emptyRecipient, resolveRecipient,
+} from "@/components/shared/RecipientPicker";
 
 const SERVICE_CATEGORIES = [
   { value: 'website', label: 'Criação de Website' },
@@ -29,7 +32,7 @@ const SERVICE_CATEGORIES = [
 ];
 
 const serviceSchema = z.object({
-  client_id: z.string().min(1, "Selecione um cliente"),
+  client_id: z.string().optional(),
   categoria_servico: z.string().min(1, "Selecione uma categoria"),
   nome_servico: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
   nome_servico_custom: z.string().optional(),
