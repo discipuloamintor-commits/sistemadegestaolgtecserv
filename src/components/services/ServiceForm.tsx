@@ -201,6 +201,15 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      // Resolve recipient (registered OR avulso w/ saveToBase).
+      // services.client_id is NOT NULL, so avulso requires saving to base.
+      const effectiveRecipient: RecipientState = recipient.mode === 'manual'
+        ? { ...recipient, saveToBase: true }
+        : recipient;
+      const reg = clients.find(c => c.id === recipient.clientId) as any;
+      const resolved = await resolveRecipient(effectiveRecipient, reg);
+      if (!resolved.client_id) throw new Error("Não foi possível associar o cliente");
+
       const valorTotal = parseFloat(data.valor_total);
       const valorInvestimento = data.tipo_pagamento === 'com_investimento' && data.valor_investimento
         ? parseFloat(data.valor_investimento)
@@ -228,7 +237,7 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
         : data.nome_servico;
 
       const serviceData = {
-        client_id: data.client_id,
+        client_id: resolved.client_id,
         nome_servico: finalName,
         data_servico: data.data_servico,
         valor_total: valorTotal,
