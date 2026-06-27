@@ -28,11 +28,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Calendar, DollarSign, TrendingUp, FileDown, Printer, FileText, Receipt, FileSignature, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar, DollarSign, TrendingUp, FileDown, Printer, FileText, Receipt, FileSignature, Pencil, Trash2, Laptop, Zap, Map } from "lucide-react";
 import { toast } from "sonner";
 import { ServiceForm } from "@/components/services/ServiceForm";
+import { ServiceFormEletrica } from "@/components/services/forms/ServiceFormEletrica";
+import { ServiceFormTopografia } from "@/components/services/forms/ServiceFormTopografia";
 import { PropostaContratoForm } from "@/components/services/PropostaContratoForm";
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
+import { PageLoader } from "@/components/ui/PageLoader";
 import { ReciboPDF } from "@/components/pdf/ReciboPDF";
 import { CotacaoPDF } from "@/components/pdf/CotacaoPDF";
 import { PropostaPDF } from "@/components/pdf/PropostaPDF";
@@ -72,6 +75,7 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
+  const [formType, setFormType] = useState<'digital' | 'eletrica' | 'topografia' | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -196,9 +200,7 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <PageLoader text="A carregar serviços..." />
       </DashboardLayout>
     );
   }
@@ -216,27 +218,126 @@ export default function Servicos({ isAdmin = false }: ServicosProps) {
           <div className="flex flex-wrap items-center gap-3">
             <Dialog open={dialogOpen} onOpenChange={(open) => {
               setDialogOpen(open);
-              if (!open) setEditingService(null);
+              if (!open) {
+                setEditingService(null);
+                setFormType(null);
+              }
             }}>
               <DialogTrigger asChild>
-                <Button onClick={() => setEditingService(null)} className="rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105">
+                <Button onClick={() => {
+                  setEditingService(null);
+                  setFormType(null);
+                }} className="rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105">
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Serviço
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-mobile">
                 <DialogHeader>
-                  <DialogTitle>{editingService ? 'Editar Serviço' : 'Cadastrar Novo Serviço'}</DialogTitle>
+                  <DialogTitle>
+                    {editingService
+                      ? 'Editar Serviço'
+                      : !formType
+                        ? 'O que pretende registar?'
+                        : 'Cadastrar Novo Serviço'}
+                  </DialogTitle>
                 </DialogHeader>
-                <ServiceForm
-                  isAdmin={isAdmin}
-                  service={editingService}
-                  onSuccess={() => {
-                    setDialogOpen(false);
-                    setEditingService(null);
-                    fetchServices();
-                  }}
-                />
+
+                {!editingService && !formType ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                    <Button
+                      variant="outline"
+                      className="h-auto py-8 flex flex-col items-center gap-4 hover:border-primary hover:bg-primary/5"
+                      onClick={() => setFormType('digital')}
+                    >
+                      <Laptop className="w-8 h-8 text-blue-500" />
+                      <div className="text-center">
+                        <p className="font-semibold">Serviços Digitais</p>
+                        <p className="text-xs text-muted-foreground mt-1 whitespace-normal">Websites, Sistemas, Apps, Marketing</p>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="h-auto py-8 flex flex-col items-center gap-4 hover:border-primary hover:bg-primary/5"
+                      onClick={() => setFormType('eletrica')}
+                    >
+                      <Zap className="w-8 h-8 text-amber-500" />
+                      <div className="text-center">
+                        <p className="font-semibold">Instalações Elétricas</p>
+                        <p className="text-xs text-muted-foreground mt-1 whitespace-normal">Piquetes, Manutenção, Montagem</p>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="h-auto py-8 flex flex-col items-center gap-4 hover:border-primary hover:bg-primary/5"
+                      onClick={() => setFormType('topografia')}
+                    >
+                      <Map className="w-8 h-8 text-green-500" />
+                      <div className="text-center">
+                        <p className="font-semibold">Topografia</p>
+                        <p className="text-xs text-muted-foreground mt-1 whitespace-normal">Levantamentos, Loteamentos, Demarcação</p>
+                      </div>
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {(() => {
+                      const cat = editingService?.detalhes_servico?.categoria;
+                      const currentType = editingService ? (cat === 'instalacao_eletrica' ? 'eletrica' : cat === 'topografia' ? 'topografia' : 'digital') : formType;
+
+                      if (currentType === 'eletrica') {
+                        return (
+                          <ServiceFormEletrica
+                            isAdmin={isAdmin}
+                            service={editingService}
+                            onSuccess={() => {
+                              setDialogOpen(false);
+                              setEditingService(null);
+                              setFormType(null);
+                              fetchServices();
+                            }}
+                          />
+                        );
+                      } else if (currentType === 'topografia') {
+                        return (
+                          <ServiceFormTopografia
+                            isAdmin={isAdmin}
+                            service={editingService}
+                            onSuccess={() => {
+                              setDialogOpen(false);
+                              setEditingService(null);
+                              setFormType(null);
+                              fetchServices();
+                            }}
+                          />
+                        );
+                      } else {
+                        return (
+                          <ServiceForm
+                            isAdmin={isAdmin}
+                            service={editingService}
+                            onSuccess={() => {
+                              setDialogOpen(false);
+                              setEditingService(null);
+                              setFormType(null);
+                              fetchServices();
+                            }}
+                          />
+                        );
+                      }
+                    })()}
+
+                    {!editingService && (
+                      <div className="flex justify-start mt-4 pt-4 border-t">
+                        <Button variant="ghost" size="sm" onClick={() => setFormType(null)}>
+                          Voltar
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
               </DialogContent>
             </Dialog>
 

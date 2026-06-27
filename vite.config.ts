@@ -34,25 +34,25 @@ export default defineConfig(({ mode }) => ({
         lang: 'pt-PT',
         icons: [
           {
-            src: '/icons/icon-96x96.png',
+            src: '/icons/icon-96x96.png?v=2',
             sizes: '96x96',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-192x192.png',
+            src: '/icons/icon-192x192.png?v=2',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: '/icons/icon-512x512.png?v=2',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/icon-maskable-512x512.png',
+            src: '/icons/icon-maskable-512x512.png?v=2',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
@@ -123,7 +123,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:js|css|woff|woff2|ttf|eot)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'static-assets-v3',
+              cacheName: 'static-assets-v4',
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
@@ -135,7 +135,7 @@ export default defineConfig(({ mode }) => ({
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'images-v3',
+              cacheName: 'images-v4',
               expiration: {
                 maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days

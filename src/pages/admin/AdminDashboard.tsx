@@ -3,11 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Users, UserCheck, Building2, Briefcase, DollarSign, TrendingUp, TrendingDown, Activity, CalendarDays, AlertCircle, PieChart, BarChart3 } from "lucide-react";
+import { Users, UserCheck, Building2, Briefcase, DollarSign, TrendingDown, Activity, CalendarDays, AlertCircle, PieChart, BarChart3, Eye, EyeOff, Receipt, Wallet, Percent, MessageCircle, Clock } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, subDays, startOfMonth, startOfYear } from "date-fns";
+import { format, subDays, startOfMonth, startOfYear, differenceInDays } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPie, Pie, Cell } from "recharts";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -23,7 +24,11 @@ export default function AdminDashboard() {
     predictedRevenue: 0,
     overdueCount: 0,
     overdueAmount: 0,
+    ticketMedio: 0,
+    inadimplencia: 0,
   });
+  const [hideBalance, setHideBalance] = useState(true);
+  const [avisosInteligentes, setAvisosInteligentes] = useState<any[]>([]);
   const [chartData, setChartData] = useState<{
     statusData: any[],
     gastosData: any[],
@@ -153,7 +158,7 @@ export default function AdminDashboard() {
       // Hosting Revenue (Global & Pending)
       const { data: hosting } = await supabase
         .from('hosting_payments')
-        .select('valor_dominio, valor_hospedagem, status, data_vencimento, data_vencimento_hospedagem');
+        .select('id, valor_dominio, valor_hospedagem, status, data_vencimento, data_vencimento_hospedagem, dominio, client_id, clients(nome, telefone)');
 
       const today = new Date();
       const todayStr = format(today, 'yyyy-MM-dd');
@@ -162,23 +167,55 @@ export default function AdminDashboard() {
       let totalAReceberHosting = 0;
       let overdueCount = 0;
       let overdueAmount = 0;
+      let hostingPaidCount = 0;
+      let avisosInteligentesArray: any[] = [];
 
       hosting?.forEach(p => {
         const value = Number(p.valor_dominio || 0) + Number(p.valor_hospedagem || 0);
         const isWithinPeriod = !dataMinima || new Date(p.data_vencimento) >= dataMinima;
 
         if (p.status === 'pago') {
-          if (isWithinPeriod) hostingRevenueReal += value;
+          if (isWithinPeriod) {
+            hostingRevenueReal += value;
+            hostingPaidCount++;
+          }
         } else if (p.status === 'pendente') {
           // All pending hosting are "A Receber" (Avisos)
           totalAReceberHosting += value;
+          
+          const isOverdue = p.data_vencimento < todayStr || (p.data_vencimento_hospedagem && p.data_vencimento_hospedagem < todayStr);
 
-          if (p.data_vencimento < todayStr || (p.data_vencimento_hospedagem && p.data_vencimento_hospedagem < todayStr)) {
+          if (isOverdue) {
             overdueCount++;
             overdueAmount += value;
           }
+          
+          const daysToDue = differenceInDays(new Date(p.data_vencimento), today);
+          
+          // Add to intelligent alerts if overdue or due in <= 15 days
+          if (isOverdue || daysToDue <= 15) {
+            avisosInteligentesArray.push({
+              ...p,
+              value,
+              daysToDue,
+              isOverdue
+            });
+          }
         }
       });
+
+      avisosInteligentesArray.sort((a, b) => a.daysToDue - b.daysToDue);
+      setAvisosInteligentes(avisosInteligentesArray);
+
+      const paidServicesCount = services?.filter(s => s.status_pagamento === 'pago').length || 0;
+      const devendoServices = services?.filter(s => s.status_pagamento === 'devendo').reduce((sum, s) => sum + Number(s.valor_total || 0), 0) || 0;
+      const pendenteServices = services?.filter(s => s.status_pagamento === 'pendente').reduce((sum, s) => sum + Number(s.valor_total || 0), 0) || 0;
+
+      const totalFaturado = (servicesRevenue + hostingRevenueReal) + devendoServices + pendenteServices + totalAReceberHosting;
+      const totalAtrasado = overdueAmount + devendoServices;
+      const inadimplencia = totalFaturado > 0 ? (totalAtrasado / totalFaturado) * 100 : 0;
+      const totalTransacoesPagas = paidServicesCount + hostingPaidCount;
+      const ticketMedio = totalTransacoesPagas > 0 ? (servicesRevenue + hostingRevenueReal) / totalTransacoesPagas : 0;
 
       setStats({
         totalUsers: totalUsers || 0,
@@ -191,6 +228,8 @@ export default function AdminDashboard() {
         predictedRevenue: totalAReceberHosting,
         overdueCount,
         overdueAmount,
+        ticketMedio,
+        inadimplencia,
       });
 
       setChartData({
@@ -210,9 +249,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <PageLoader text="A preparar estatísticas..." />
       </DashboardLayout>
     );
   }
@@ -225,33 +262,43 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold">Painel do Administrador</h1>
             <p className="text-muted-foreground">Visão geral do sistema</p>
           </div>
-          <Select value={filterPeriodo} onValueChange={setFilterPeriodo}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="hoje">Hoje</SelectItem>
-              <SelectItem value="7dias">Últimos 7 Dias</SelectItem>
-              <SelectItem value="mes">Este Mês</SelectItem>
-              <SelectItem value="ano">Este Ano</SelectItem>
-              <SelectItem value="tudo">Todo Período</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* Saldo Atual Widget */}
+            <div className="bg-white border border-border shadow-sm rounded-xl px-4 py-2 flex items-center justify-between min-w-[200px] gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Saldo Atual</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className={`text-xl font-bold ${stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {hideBalance ? "•••• MT" : `${stats.totalProfit.toFixed(2)} MT`}
+                  </span>
+                  <button 
+                    onClick={() => setHideBalance(!hideBalance)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {hideBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                <Wallet className="h-4 w-4 text-green-500" />
+              </div>
+            </div>
 
-        {stats.overdueCount > 0 && (
-          <Alert className="border-red-500 bg-red-50">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-700 flex items-center justify-between w-full">
-              <span>
-                <strong>Atenção:</strong> Existem {stats.overdueCount} {stats.overdueCount === 1 ? 'pagamento' : 'pagamentos'} de hosting vencidos no sistema ({stats.overdueAmount.toFixed(2)} MT).
-              </span>
-              <Button variant="link" className="text-red-700 h-auto p-0 font-bold underline" onClick={() => window.location.href = '/admin/pagamentos-hosting'}>
-                Ver todos
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+            <Select value={filterPeriodo} onValueChange={setFilterPeriodo}>
+              <SelectTrigger className="w-full sm:w-[180px] bg-white h-[60px] sm:h-10 rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hoje">Hoje</SelectItem>
+                <SelectItem value="7dias">Últimos 7 Dias</SelectItem>
+                <SelectItem value="mes">Este Mês</SelectItem>
+                <SelectItem value="ano">Este Ano</SelectItem>
+                <SelectItem value="tudo">Todo Período</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           <Card className="premium-card animate-fade-up stagger-1 border-none shadow-md">
@@ -306,18 +353,18 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="premium-card animate-fade-up stagger-1 border-l-4 border-l-green-500 bg-green-50/20 border-none shadow-md">
+          <Card className="premium-card animate-fade-up stagger-1 border-l-4 border-l-blue-500 bg-blue-50/20 border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-4 pt-4">
-              <CardTitle className="text-[10px] uppercase tracking-wider font-bold text-green-700">Lucro</CardTitle>
-              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-[10px] uppercase tracking-wider font-bold text-blue-700">Faturamento Bruto</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-blue-600" />
               </div>
             </CardHeader>
             <CardContent className="px-4 pb-4">
-              <div className={`text-xl font-bold ${stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.totalProfit.toFixed(0)} MT
+              <div className="text-xl font-bold text-blue-700">
+                {stats.totalRevenue.toFixed(0)} MT
               </div>
-              <p className="text-[9px] text-green-700/70 mt-0.5">{periodLabel}</p>
+              <p className="text-[9px] text-blue-700/70 mt-0.5">{periodLabel}</p>
             </CardContent>
           </Card>
 
@@ -351,21 +398,96 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="premium-card animate-fade-up stagger-4 bg-slate-900 text-white border-none shadow-md">
+          <Card className="premium-card animate-fade-up stagger-4 border-l-4 border-l-indigo-500 bg-indigo-50/20 border-none shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-4 pt-4">
-              <CardTitle className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Eficiência</CardTitle>
-              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
-                <Activity className="h-4 w-4 text-blue-400" />
+              <CardTitle className="text-[10px] uppercase tracking-wider font-bold text-indigo-700">Ticket Médio</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                <Receipt className="h-4 w-4 text-indigo-600" />
               </div>
             </CardHeader>
             <CardContent className="px-4 pb-4">
-              <div className="text-xl font-bold text-white">
-                {stats.totalRevenue > 0 ? ((stats.totalProfit / stats.totalRevenue) * 100).toFixed(1) : 0}%
+              <div className="text-xl font-bold text-indigo-700">
+                {stats.ticketMedio.toFixed(0)} MT
               </div>
-              <p className="text-[9px] text-slate-400 mt-0.5">{periodLabel}</p>
+              <p className="text-[9px] text-indigo-700/70 mt-0.5">Por transação paga</p>
+            </CardContent>
+          </Card>
+
+          <Card className="premium-card animate-fade-up stagger-4 bg-slate-900 text-white border-none shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-4 pt-4">
+              <CardTitle className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Inadimplência</CardTitle>
+              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+                <Percent className="h-4 w-4 text-red-400" />
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className={`text-xl font-bold ${stats.inadimplencia > 20 ? 'text-red-400' : 'text-white'}`}>
+                {stats.inadimplencia.toFixed(1)}%
+              </div>
+              <p className="text-[9px] text-slate-400 mt-0.5">Atraso vs Faturado</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Avisos Inteligentes Section */}
+        {avisosInteligentes.length > 0 && (
+          <div className="mt-8 animate-fade-up stagger-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-orange-500" />
+                Avisos Inteligentes de Cobrança
+              </h2>
+              <span className="text-xs text-muted-foreground bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-medium">
+                {avisosInteligentes.length} pendentes (15 dias)
+              </span>
+            </div>
+            
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {avisosInteligentes.map((aviso) => {
+                const clientName = aviso.clients?.nome || "Cliente Desconhecido";
+                const clientPhone = aviso.clients?.telefone || "";
+                
+                const wappMessage = encodeURIComponent(
+                  `Olá ${clientName}! Gostaríamos de lembrar que o pagamento do seu alojamento/domínio (${aviso.dominio || "Plano Geral"}) ` +
+                  (aviso.isOverdue ? "está em atraso." : `vence no dia ${format(new Date(aviso.data_vencimento), 'dd/MM/yyyy')}.`) +
+                  ` O valor é de ${aviso.value.toFixed(2)} MT. Evite a suspensão do serviço efetuando o pagamento atempadamente. Obrigado pela preferência! - LG TecServ`
+                );
+                
+                return (
+                  <Card key={aviso.id} className={`border-l-4 shadow-sm hover:shadow-md transition-shadow ${aviso.isOverdue ? 'border-l-red-500 bg-red-50/10' : 'border-l-orange-400 bg-orange-50/10'}`}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-bold text-sm truncate max-w-[150px]" title={clientName}>{clientName}</h3>
+                          <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={aviso.dominio}>{aviso.dominio || "Serviço"}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`text-xs font-bold px-2 py-1 rounded-md ${aviso.isOverdue ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {aviso.isOverdue ? 'Vencido' : `${aviso.daysToDue} dias`}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mb-4 text-sm font-medium">
+                        <Wallet className="w-4 h-4 text-muted-foreground" />
+                        {aviso.value.toFixed(2)} MT
+                      </div>
+                      
+                      <Button 
+                        className="w-full h-8 text-xs bg-[#25D366] hover:bg-[#128C7E] text-white flex items-center justify-center gap-2"
+                        onClick={() => window.open(`https://wa.me/${clientPhone.replace(/\D/g, '')}?text=${wappMessage}`, '_blank')}
+                        disabled={!clientPhone}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        {clientPhone ? "Cobrar via WhatsApp" : "Sem telefone"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Gráficos de BI migrados */}
         <div className="grid gap-4 md:grid-cols-2">

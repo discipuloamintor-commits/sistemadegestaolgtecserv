@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import logo from '@/assets/logo.png';
 
 export const SplashScreen = () => {
     const [visible, setVisible] = useState(true);
@@ -31,36 +30,26 @@ export const SplashScreen = () => {
             className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'
                 }`}
         >
-            {/* Pulsing ring */}
             <div className="relative mb-8">
-                <div className="absolute inset-0 w-28 h-28 rounded-full border-4 border-primary/30 animate-ping" />
-                <div className="absolute inset-0 w-28 h-28 rounded-full border-2 border-primary/20 animate-pulse" />
                 <img
-                    src={logo}
-                    alt="LG TecServ"
-                    className="relative w-28 h-28 object-contain rounded-2xl shadow-xl z-10"
-                />
-            </div>
-
-            {/* Title */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">LG TecServ</h1>
-            <p className="text-sm text-gray-500 mb-8">Sistema de Gestão</p>
-
-            {/* Progress bar */}
-            <div className="w-48 h-1 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                    className="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full"
+                    src="/icons/icon-512x512.png?v=2"
+                    alt="LG TecServ Icon"
+                    className="relative w-28 h-28 object-contain z-10"
                     style={{
-                        animation: 'splashProgress 1.8s ease-out forwards',
+                        animation: 'spinAccelerate 2.3s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                        transformOrigin: 'center center'
                     }}
                 />
             </div>
 
             <style>{`
-        @keyframes splashProgress {
-          0% { width: 0%; }
-          60% { width: 70%; }
-          100% { width: 100%; }
+        @keyframes spinAccelerate {
+          0% { 
+            transform: rotate(0deg); 
+          }
+          100% { 
+            transform: rotate(1440deg); /* 4 voltas completas */
+          }
         }
       `}</style>
         </div>

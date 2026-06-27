@@ -4,7 +4,9 @@ import { AppSidebar } from "./Sidebar";
 import logo from "@/assets/logo.png";
 import { LayoutDashboard, Users, Briefcase, Globe, Receipt, Settings, LogOut, Bell } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { toast } from "sonner";
 import { useBadge } from "@/hooks/useBadge";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -62,8 +64,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <PageLoader text="A preparar o seu painel..." />
       </div>
     );
   }
@@ -92,7 +94,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#f8fafc]">
+      <div className="min-h-screen flex w-full bg-[#f8fafc] overflow-x-hidden max-w-[100vw]">
         {/* Desktop Sidebar */}
         <div className="hidden md:flex">
           <AppSidebar />
@@ -129,13 +131,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
 
           {/* Mobile Bottom Navigation */}
-          <nav className="fixed bottom-0 left-0 right-0 z-[100] h-[80px] bg-white/98 backdrop-blur-xl border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] rounded-t-2xl flex items-center justify-around px-2 pb-2 md:hidden">
+          <nav className="fixed bottom-0 left-0 right-0 z-[100] h-[80px] bg-white/98 backdrop-blur-xl border-t border-gray-100 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] rounded-t-2xl flex items-center overflow-x-auto hide-scrollbar px-2 pb-2 md:hidden">
             {mobNavItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 flex-1 min-w-0 max-w-[4.5rem] transition-all duration-300 ${isActive ? "text-primary transform -translate-y-1" : "text-gray-400 font-medium opacity-70"
+                  `flex flex-col items-center justify-center gap-1 flex-shrink-0 flex-1 min-w-[4.5rem] transition-all duration-300 ${isActive ? "text-primary transform -translate-y-1" : "text-gray-400 font-medium opacity-70"
                   }`
                 }
               >

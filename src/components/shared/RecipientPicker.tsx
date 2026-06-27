@@ -89,12 +89,12 @@ export function RecipientPicker({
     <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3 sm:p-4">
       <Label className="text-sm font-semibold">Destinatário do documento *</Label>
       <Tabs value={value.mode} onValueChange={(v) => setMode(v as "registered" | "manual")}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="registered" className="gap-2">
-            <UserCheck className="h-4 w-4" /> Cliente cadastrado
+        <TabsList className="flex flex-col sm:grid w-full sm:grid-cols-2 h-auto gap-1">
+          <TabsTrigger value="registered" className="gap-2 h-auto py-2 whitespace-normal text-xs sm:text-sm">
+            <UserCheck className="h-4 w-4 shrink-0" /> Cliente cadastrado
           </TabsTrigger>
-          <TabsTrigger value="manual" className="gap-2">
-            <UserPlus className="h-4 w-4" /> Cliente avulso
+          <TabsTrigger value="manual" className="gap-2 h-auto py-2 whitespace-normal text-xs sm:text-sm">
+            <UserPlus className="h-4 w-4 shrink-0" /> Cliente avulso
           </TabsTrigger>
         </TabsList>
 

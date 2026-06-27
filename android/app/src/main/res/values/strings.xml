@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gestao LG TecServ</string>
+    <string name="title_activity_main">Gestao LG TecServ</string>
+    <string name="package_name">com.lgtecserv.app</string>
+    <string name="custom_url_scheme">com.lgtecserv.app</string>
+</resources>

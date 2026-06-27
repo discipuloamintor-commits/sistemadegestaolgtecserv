@@ -29,6 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { Check, X, MoreVertical, Trash2, Ban, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -235,9 +237,7 @@ export default function GerenciarUsuarios() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <PageLoader text="A carregar utilizadores..." />
       </DashboardLayout>
     );
   }

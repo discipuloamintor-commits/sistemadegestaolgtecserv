@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { 
   ArrowLeft, 
   Phone, 
@@ -85,9 +86,7 @@ export default function ClienteDetalhes() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <PageLoader text="A carregar detalhes do cliente..." />
       </DashboardLayout>
     );
   }

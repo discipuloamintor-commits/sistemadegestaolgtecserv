@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
@@ -396,9 +397,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
     if (loading) {
         return (
             <DashboardLayout>
-                <div className="flex items-center justify-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
+                <PageLoader text="A carregar registos de hosting..." />
             </DashboardLayout>
         );
     }
@@ -678,7 +677,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                     )}
 
                                     {/* Actions */}
-                                    <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-4 pt-4 border-t">
                                         <PDFDownloadLink
                                             document={
                                                 <AvisoPagamentoPDF
@@ -696,7 +695,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             fileName={`aviso-pagamento-${clientData.nome?.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                                         >
                                             {({ loading: pdfLoading }) => (
-                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="flex-1 sm:flex-initial border-amber-300 text-amber-700 hover:bg-amber-50">
+                                                <Button variant="outline" size="sm" disabled={pdfLoading} className="w-full sm:w-auto border-amber-300 text-amber-700 hover:bg-amber-50">
                                                     <FileDown className="w-4 h-4 mr-2" />
                                                     {pdfLoading ? 'Gerando...' : 'Aviso PDF'}
                                                 </Button>
@@ -707,7 +706,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="flex-1 sm:flex-initial border-green-300 text-green-700 hover:bg-green-50"
+                                                className="w-full sm:w-auto border-green-300 text-green-700 hover:bg-green-50"
                                                 onClick={() => handleMarkPaid(payment)}
                                             >
                                                 <CheckCircle2 className="w-4 h-4 mr-2" />
@@ -718,7 +717,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="flex-1 sm:flex-initial border-blue-300 text-blue-700 hover:bg-blue-50"
+                                            className="w-full sm:w-auto border-blue-300 text-blue-700 hover:bg-blue-50"
                                             onClick={() => handleEdit(payment)}
                                         >
                                             <Pencil className="w-4 h-4 mr-2" />
@@ -728,7 +727,7 @@ export default function PagamentosHosting({ isAdmin = false }: PagamentosHosting
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="flex-1 sm:flex-initial border-red-300 text-red-700 hover:bg-red-50"
+                                            className="w-full sm:w-auto border-red-300 text-red-700 hover:bg-red-50"
                                             onClick={() => {
                                                 setPaymentToDelete(payment.id);
                                                 setDeleteDialogOpen(true);

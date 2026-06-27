@@ -168,3 +168,12 @@ body { pointer-events: auto !important; }
 @media (min-width: 640px) {
   .dialog-content-mobile { width: auto !important; }
 }
+
+/* Hide scrollbar for elements that need to scroll smoothly without the ugly bar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

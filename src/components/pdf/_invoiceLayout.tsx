@@ -7,6 +7,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
   sistema: 'Criação de Sistema',
   trafego_pago: 'Gestão de Tráfego Pago',
   redes_sociais: 'Gestão de Redes Sociais',
+  instalacao_eletrica: 'Instalação Elétrica',
+  topografia: 'Levantamento Topográfico',
   outro: 'Outro',
 };
 
@@ -14,163 +16,248 @@ export const styles = StyleSheet.create({
   page: {
     padding: 36,
     fontSize: 10,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Times-Roman',
     backgroundColor: '#ffffff',
     color: '#111827',
   },
-  topRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  brandBlock: { flexDirection: 'row', alignItems: 'center' },
-  logo: { width: 70, height: 70, objectFit: 'contain', marginRight: 14 },
-  brandText: { maxWidth: 260 },
-  companyName: {
-    fontSize: 13,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111827',
-    marginBottom: 3,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  headerLeft: { width: '60%', flexDirection: 'row', alignItems: 'center' },
+  headerRight: { width: '40%', alignItems: 'flex-end' },
+  logo: { width: 100, height: 60, objectFit: 'contain', marginRight: 14 },
+  companyInfo: { flex: 1 },
+  companyName: { fontSize: 16, fontFamily: 'Times-Bold', color: '#5932ea', marginBottom: 4, textTransform: 'uppercase' },
+  companyText: { fontSize: 9, color: '#4b5563', marginBottom: 2 },
+  docTitle: { fontSize: 22, fontFamily: 'Times-Bold', color: '#111827', textTransform: 'uppercase', marginBottom: 6 },
+  docNumberBox: { borderWidth: 1, borderColor: '#ef4444', borderRadius: 4, padding: 6, paddingHorizontal: 12, marginBottom: 6 },
+  docNumberText: { fontSize: 12, fontFamily: 'Times-Bold', color: '#ef4444' },
+  docDateLine: { fontSize: 10, color: '#374151', marginTop: 2, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, paddingVertical: 2, paddingHorizontal: 8 },
+  
+  // Client Box
+  clientBox: {
+    borderWidth: 1,
+    borderColor: '#5932ea',
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 16,
+    width: '100%',
   },
-  companyLine: { fontSize: 8.5, color: '#6b7280', marginBottom: 1.5 },
-  docTitleBlock: { alignItems: 'flex-end' },
-  docTitle: {
-    fontSize: 32,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111827',
-    letterSpacing: 1,
-  },
-  docMeta: { fontSize: 9, color: '#374151', marginTop: 6 },
-  docMetaLabel: { fontFamily: 'Helvetica-Bold', color: '#6b7280' },
-  divider: { borderBottom: '1pt solid #111827', marginBottom: 14 },
-  twoCol: { flexDirection: 'row', gap: 24, marginBottom: 18 },
-  partyCol: { flex: 1 },
-  partyHeading: {
-    fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+  clientLine: {
+    flexDirection: 'row',
     marginBottom: 6,
-    paddingBottom: 3,
-    borderBottom: '0.5pt solid #d1d5db',
+    alignItems: 'flex-end',
   },
-  partyName: { fontSize: 10.5, fontFamily: 'Helvetica-Bold', color: '#111827', marginBottom: 2 },
-  partyLine: { fontSize: 9, color: '#374151', marginBottom: 1.5 },
-  metaTable: { marginBottom: 18, border: '0.5pt solid #d1d5db' },
+  clientLabel: {
+    fontFamily: 'Times-Bold',
+    fontSize: 10,
+    color: '#5932ea',
+    width: 65,
+  },
+  clientValue: {
+    fontSize: 10,
+    color: '#111827',
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#d1d5db',
+    borderBottomStyle: 'solid',
+    paddingBottom: 2,
+  },
+
+  // Meta Table
+  metaTable: { marginBottom: 16, borderWidth: 1, borderColor: '#5932ea', borderRadius: 2 },
   metaRow: { flexDirection: 'row' },
   metaCell: {
     flex: 1,
     paddingVertical: 5,
     paddingHorizontal: 6,
-    borderRight: '0.5pt solid #d1d5db',
+    borderRightWidth: 1,
+    borderRightColor: '#5932ea',
+    textAlign: 'center',
   },
-  metaCellLast: { flex: 1, paddingVertical: 5, paddingHorizontal: 6 },
+  metaCellLast: { flex: 1, paddingVertical: 5, paddingHorizontal: 6, textAlign: 'center' },
   metaHead: {
-    fontSize: 7.5,
-    fontFamily: 'Helvetica-Bold',
-    color: '#ffffff',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  metaHeadBg: { backgroundColor: '#111827' },
-  metaValue: { fontSize: 9, color: '#111827' },
-  itemsHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#111827',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
-  itemsHeaderText: {
-    color: '#ffffff',
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: 'Times-Bold',
+    color: '#ffffff',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
-  itemRow: {
-    flexDirection: 'row',
-    paddingVertical: 7,
-    paddingHorizontal: 8,
-    borderBottom: '0.5pt solid #e5e7eb',
+  metaHeadBg: { backgroundColor: '#5932ea', borderBottomWidth: 1, borderBottomColor: '#5932ea' },
+  metaValue: { fontSize: 9, color: '#111827' },
+
+  // Main Table Grid
+  tableContainer: {
+    borderWidth: 1,
+    borderColor: '#5932ea',
+    borderRadius: 2,
+    marginBottom: 16,
   },
-  itemRowAlt: { backgroundColor: '#f9fafb' },
-  colQty: { width: '10%', textAlign: 'center' },
-  colDesc: { width: '60%', paddingRight: 6 },
-  colUnit: { width: '15%', textAlign: 'right' },
-  colTotal: { width: '15%', textAlign: 'right' },
-  itemCell: { fontSize: 9, color: '#111827' },
-  itemDescMain: { fontSize: 9.5, fontFamily: 'Helvetica-Bold', color: '#111827' },
-  itemDescSub: { fontSize: 8, color: '#6b7280', marginTop: 1 },
-  totalsWrap: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 },
-  totalsBox: { width: '45%' },
-  totalsRow: {
+  tableHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: '#f3f0ff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#5932ea',
+  },
+  tableHeaderCell: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    fontSize: 9,
+    fontFamily: 'Times-Bold',
+    color: '#5932ea',
+    textAlign: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#5932ea',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#5932ea',
+  },
+  tableRowLast: {
+    flexDirection: 'row',
+  },
+  tableCell: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    fontSize: 9,
+    color: '#111827',
+    borderRightWidth: 1,
+    borderRightColor: '#5932ea',
+    display: 'flex',
+    justifyContent: 'center',
+    minHeight: 24,
+  },
+  tableCellCompact: {
     paddingVertical: 4,
-    paddingHorizontal: 8,
+    minHeight: 18,
   },
-  totalsLabel: { fontSize: 9.5, color: '#374151' },
-  totalsValue: { fontSize: 9.5, color: '#111827', fontFamily: 'Helvetica-Bold' },
-  grandRow: {
+  tableCellLast: {
+    borderRightWidth: 0,
+  },
+  
+  col1: { width: '10%', textAlign: 'center' },
+  col2: { width: '60%', textAlign: 'left', paddingHorizontal: 8 },
+  col3: { width: '15%', textAlign: 'right', paddingHorizontal: 6 },
+  col4: { width: '15%', textAlign: 'right', paddingHorizontal: 6 },
+
+  itemDescMain: { fontSize: 9.5, fontFamily: 'Times-Bold', color: '#111827' },
+  itemDescMainCompact: { fontSize: 8.5 },
+  itemDescSub: { fontSize: 8, color: '#6b7280', marginTop: 1 },
+  itemDescSubCompact: { fontSize: 7, marginTop: 0 },
+
+  // Totals Area
+  bottomSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    backgroundColor: '#111827',
     marginTop: 4,
   },
-  grandLabel: { fontSize: 11, color: '#ffffff', fontFamily: 'Helvetica-Bold', letterSpacing: 1 },
-  grandValue: { fontSize: 13, color: '#ffffff', fontFamily: 'Helvetica-Bold' },
-  notesWrap: { marginTop: 22 },
+  paymentBox: {
+    width: '55%',
+    padding: 8,
+  },
+  paymentLabel: { fontSize: 9, fontFamily: 'Times-Bold', color: '#5932ea', marginBottom: 6 },
+  paymentRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  checkbox: { width: 10, height: 10, borderWidth: 1, borderColor: '#5932ea', marginRight: 6 },
+  paymentText: { fontSize: 9, color: '#374151' },
+  
   notesHeading: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    color: '#6b7280',
+    fontFamily: 'Times-Bold',
+    color: '#5932ea',
     textTransform: 'uppercase',
-    letterSpacing: 1,
     marginBottom: 4,
   },
   notesText: { fontSize: 9, color: '#374151', lineHeight: 1.5 },
-  declaracao: {
-    marginBottom: 16,
-    padding: 10,
-    borderLeft: '2pt solid #111827',
-    backgroundColor: '#f9fafb',
+  
+  totalsBox: {
+    width: '40%',
+    borderWidth: 1,
+    borderColor: '#5932ea',
+    borderRadius: 2,
+    alignSelf: 'flex-start',
   },
-  declaracaoText: { fontSize: 10, color: '#111827', lineHeight: 1.5 },
-  declaracaoBold: { fontFamily: 'Helvetica-Bold' },
+  totalsRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#5932ea',
+  },
+  totalsRowLast: {
+    flexDirection: 'row',
+  },
+  totalsLabelBox: {
+    width: '50%',
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    borderRightWidth: 1,
+    borderRightColor: '#5932ea',
+    backgroundColor: '#f3f0ff',
+  },
+  totalsLabel: {
+    fontSize: 9,
+    fontFamily: 'Times-Bold',
+    color: '#5932ea',
+    textAlign: 'right',
+  },
+  totalsValueBox: {
+    width: '50%',
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+    justifyContent: 'center',
+  },
+  totalsValue: {
+    fontSize: 10,
+    fontFamily: 'Times-Bold',
+    color: '#111827',
+    textAlign: 'right',
+  },
+  
+  // Signature Area
+  signatureArea: {
+    marginTop: 60,
+    alignItems: 'flex-end',
+    paddingRight: 20,
+  },
+  signatureLine: {
+    width: 200,
+    borderBottomWidth: 1,
+    borderBottomColor: '#111827',
+    marginBottom: 6,
+  },
+  signatureText: {
+    fontSize: 9,
+    fontFamily: 'Times-Bold',
+    color: '#5932ea',
+    textAlign: 'center',
+    width: 200,
+  },
+  
   paidStamp: {
     position: 'absolute',
-    top: 180,
+    top: 250,
     right: 60,
     border: '3pt solid #047857',
     color: '#047857',
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 28,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    transform: 'rotate(-12deg)',
-    letterSpacing: 3,
-  },
-  thanks: {
-    marginTop: 18,
-    textAlign: 'center',
-    fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
-    color: '#111827',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
+    fontFamily: 'Times-Bold',
+    fontSize: 32,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    transform: 'rotate(-15deg)',
+    letterSpacing: 4,
+    opacity: 0.8,
   },
   footer: {
-    marginTop: 'auto',
+    position: 'absolute',
+    bottom: 20,
+    left: 36,
+    right: 36,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
     paddingTop: 10,
-    borderTop: '0.5pt solid #e5e7eb',
     textAlign: 'center',
-    fontSize: 7.5,
+    fontSize: 8,
     color: '#9ca3af',
   },
 });
@@ -191,12 +278,30 @@ export function buildItems(servico: any): LineItem[] {
   const total = Number(servico.valor_total) || 0;
   const base = Math.max(total - extras, 0);
 
-  items.push({
-    qtd: 1,
-    descricao: servico.nome_servico || 'Serviço',
-    detalhe: CATEGORY_LABELS[categoria] || undefined,
-    unit: base,
-  });
+  if (detalhes.itens_gerais && Array.isArray(detalhes.itens_gerais) && detalhes.itens_gerais.length > 0) {
+    detalhes.itens_gerais.forEach((it: any) => {
+      let detalhe = "";
+      if (it.periodo === "mensal") detalhe = "Período: Mensal";
+      if (it.periodo === "anual") detalhe = "Período: Anual (12 meses)";
+      
+      items.push({
+        qtd: it.qtd,
+        descricao: it.descricao,
+        detalhe: detalhe || undefined,
+        unit: Number(it.unitario) * (it.periodo === "anual" ? 12 : 1),
+      });
+    });
+    return items;
+  }
+
+  if (categoria !== 'instalacao_eletrica' && categoria !== 'topografia') {
+    items.push({
+      qtd: 1,
+      descricao: servico.nome_servico || 'Serviço',
+      detalhe: CATEGORY_LABELS[categoria] || undefined,
+      unit: base,
+    });
+  }
 
   if (categoria === 'website') {
     if (dominio > 0) {
@@ -232,6 +337,50 @@ export function buildItems(servico: any): LineItem[] {
       detalhe: detalhes.plataformas || 'Plataformas digitais',
       unit: trafego,
     });
+  }
+
+  if (categoria === 'instalacao_eletrica') {
+    detalhes.itens_servico?.forEach((item: any) => {
+      items.push({
+        qtd: Number(item.quantidade) || 1,
+        descricao: item.nome,
+        detalhe: `${item.marca || ''} ${item.cor || ''}`.trim(),
+        unit: Number(item.preco_unitario),
+      });
+    });
+    if (detalhes.incluir_mao_de_obra) {
+      items.push({
+        qtd: 1,
+        descricao: 'Mão de Obra / Serviço de Instalação',
+        detalhe: 'Serviço Técnico',
+        unit: Number(detalhes.valor_mao_de_obra) || 0,
+      });
+    }
+  }
+
+  if (categoria === 'topografia') {
+    items.push({
+      qtd: 1,
+      descricao: 'Levantamento Topográfico',
+      detalhe: `Área: ${detalhes.area_local} m²/ha`,
+      unit: Number(detalhes.valor_mao_de_obra) || 0,
+    });
+    if (Number(detalhes.valor_transporte) > 0) {
+      items.push({
+        qtd: 1,
+        descricao: 'Deslocação e Logística',
+        detalhe: 'Transporte',
+        unit: Number(detalhes.valor_transporte),
+      });
+    }
+    if (!detalhes.equipamento_empresa && Number(detalhes.custo_aluguel) > 0) {
+      items.push({
+        qtd: 1,
+        descricao: 'Aluguer de Equipamentos',
+        detalhe: detalhes.instrumentos || 'Equipamento especializado',
+        unit: Number(detalhes.custo_aluguel),
+      });
+    }
   }
 
   return items;
@@ -275,9 +424,15 @@ export function InvoiceDocument({
   thanksText,
 }: DocumentLayoutProps) {
   const items = buildItems(servico);
-  const subtotal = items.reduce((s, i) => s + i.qtd * i.unit, 0);
-  const total = Number(servico.valor_total) || subtotal;
-  const desconto = Math.max(subtotal - total, 0);
+  const detalhes = servico.detalhes_servico || {};
+  
+  const subtotal = detalhes.subtotal !== undefined ? Number(detalhes.subtotal) : items.reduce((s, i) => s + i.qtd * i.unit, 0);
+  const impostoIva = detalhes.imposto_iva !== undefined ? Number(detalhes.imposto_iva) : 0;
+  const total = Number(servico.valor_total) || (subtotal + impostoIva);
+  const desconto = Math.max((subtotal + impostoIva) - total, 0);
+
+  const isCompact = items.length > 8;
+  const numRows = Math.max(4, items.length);
 
   return (
     <Document>
@@ -285,152 +440,169 @@ export function InvoiceDocument({
         {showPaidStamp && <Text style={styles.paidStamp}>PAGO</Text>}
 
         {/* Top: Logo + Empresa | Título do Documento */}
-        <View style={styles.topRow}>
-          <View style={styles.brandBlock}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerLeft}>
             <Image src={logoImg} style={styles.logo} />
-            <View style={styles.brandText}>
-              <Text style={styles.companyName}>{empresa?.nome || 'LG TecServ'}</Text>
-              {empresa?.endereco && <Text style={styles.companyLine}>{empresa.endereco}</Text>}
-              {empresa?.contato && <Text style={styles.companyLine}>Tel: {empresa.contato}</Text>}
-              {empresa?.email && <Text style={styles.companyLine}>{empresa.email}</Text>}
-              {empresa?.nuit && <Text style={styles.companyLine}>NUIT: {empresa.nuit}</Text>}
+            <View style={styles.companyInfo}>
+              {empresa?.endereco && <Text style={styles.companyText}>{empresa.endereco}</Text>}
+              {empresa?.contato && <Text style={styles.companyText}>Tel: {empresa.contato}</Text>}
+              {empresa?.email && <Text style={styles.companyText}>{empresa.email}</Text>}
+              {empresa?.nuit && <Text style={styles.companyText}>NUIT: {empresa.nuit}</Text>}
             </View>
           </View>
-          <View style={styles.docTitleBlock}>
+          <View style={styles.headerRight}>
             <Text style={styles.docTitle}>{docTitle}</Text>
-            <Text style={styles.docMeta}>
-              <Text style={styles.docMetaLabel}>{docNumberLabel}: </Text>
-              {docNumber}
-            </Text>
-            {docDate && (
-              <Text style={styles.docMeta}>
-                <Text style={styles.docMetaLabel}>{docDateLabel}: </Text>
-                {docDate}
-              </Text>
-            )}
-            {extraMetaLabel && extraMetaValue && (
-              <Text style={styles.docMeta}>
-                <Text style={styles.docMetaLabel}>{extraMetaLabel}: </Text>
-                {extraMetaValue}
-              </Text>
-            )}
+            <View style={styles.docNumberBox}>
+              <Text style={styles.docNumberText}>{docNumberLabel}: {docNumber}</Text>
+            </View>
+            <Text style={styles.docDateLine}>{docDateLabel}: {docDate || new Date().toLocaleDateString('pt-MZ')}</Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
-
         {preamble}
 
-        {/* Faturar para / Enviar para */}
-        <View style={styles.twoCol}>
-          <View style={styles.partyCol}>
-            <Text style={styles.partyHeading}>Faturar para</Text>
-            <Text style={styles.partyName}>{cliente?.nome || 'N/A'}</Text>
-            {cliente?.endereco && <Text style={styles.partyLine}>{cliente.endereco}</Text>}
-            {cliente?.telefone && <Text style={styles.partyLine}>Tel: {cliente.telefone}</Text>}
-            {cliente?.email && <Text style={styles.partyLine}>{cliente.email}</Text>}
+        {/* Client Box */}
+        <View style={styles.clientBox}>
+          <View style={styles.clientLine}>
+            <Text style={styles.clientLabel}>Exmo. Sr(a):</Text>
+            <Text style={styles.clientValue}>{cliente?.nome || ''}</Text>
           </View>
-          <View style={styles.partyCol}>
-            <Text style={styles.partyHeading}>Enviar para</Text>
-            <Text style={styles.partyName}>{cliente?.nome || 'N/A'}</Text>
-            {cliente?.endereco ? (
-              <Text style={styles.partyLine}>{cliente.endereco}</Text>
-            ) : (
-              <Text style={styles.partyLine}>—</Text>
-            )}
-            {cliente?.telefone && <Text style={styles.partyLine}>Tel: {cliente.telefone}</Text>}
+          <View style={styles.clientLine}>
+            <Text style={styles.clientLabel}>Morada:</Text>
+            <Text style={styles.clientValue}>{cliente?.endereco || ''}</Text>
+          </View>
+          <View style={styles.clientLine}>
+            <Text style={styles.clientLabel}>NUIT:</Text>
+            <Text style={styles.clientValue}>{(cliente as any)?.nuit || ''}</Text>
           </View>
         </View>
 
         {/* Meta-tabela (Vendedor, Nº pedido, etc.) */}
-        <View style={styles.metaTable}>
-          <View style={[styles.metaRow, styles.metaHeadBg]}>
-            {metaColumns.map((c, i) => (
-              <View
-                key={`h-${i}`}
-                style={i === metaColumns.length - 1 ? styles.metaCellLast : styles.metaCell}
-              >
-                <Text style={styles.metaHead}>{c.head}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.metaRow}>
-            {metaColumns.map((c, i) => (
-              <View
-                key={`v-${i}`}
-                style={i === metaColumns.length - 1 ? styles.metaCellLast : styles.metaCell}
-              >
-                <Text style={styles.metaValue}>{c.value || '—'}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Tabela de itens */}
-        <View>
-          <View style={styles.itemsHeader}>
-            <Text style={[styles.itemsHeaderText, styles.colQty]}>Qtd</Text>
-            <Text style={[styles.itemsHeaderText, styles.colDesc]}>Descrição</Text>
-            <Text style={[styles.itemsHeaderText, styles.colUnit]}>Preço Unit.</Text>
-            <Text style={[styles.itemsHeaderText, styles.colTotal]}>Total</Text>
-          </View>
-          {items.map((it, idx) => (
-            <View
-              key={idx}
-              style={[styles.itemRow, idx % 2 === 1 ? styles.itemRowAlt : {}]}
-            >
-              <Text style={[styles.itemCell, styles.colQty]}>{it.qtd}</Text>
-              <View style={styles.colDesc}>
-                <Text style={styles.itemDescMain}>{it.descricao}</Text>
-                {it.detalhe && <Text style={styles.itemDescSub}>{it.detalhe}</Text>}
-              </View>
-              <Text style={[styles.itemCell, styles.colUnit]}>{fmt(it.unit)}</Text>
-              <Text style={[styles.itemCell, styles.colTotal]}>{fmt(it.qtd * it.unit)}</Text>
+        {metaColumns && metaColumns.length > 0 && (
+          <View style={styles.metaTable}>
+            <View style={[styles.metaRow, styles.metaHeadBg]}>
+              {metaColumns.map((c, i) => (
+                <View
+                  key={`h-${i}`}
+                  style={i === metaColumns.length - 1 ? styles.metaCellLast : styles.metaCell}
+                >
+                  <Text style={styles.metaHead}>{c.head}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-
-        {/* Totais */}
-        <View style={styles.totalsWrap}>
-          <View style={styles.totalsBox}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>{fmt(subtotal)} MT</Text>
+            <View style={styles.metaRow}>
+              {metaColumns.map((c, i) => (
+                <View
+                  key={`v-${i}`}
+                  style={i === metaColumns.length - 1 ? styles.metaCellLast : styles.metaCell}
+                >
+                  <Text style={styles.metaValue}>{c.value || '—'}</Text>
+                </View>
+              ))}
             </View>
-            {desconto > 0 && (
-              <View style={styles.totalsRow}>
-                <Text style={styles.totalsLabel}>Desconto</Text>
-                <Text style={styles.totalsValue}>- {fmt(desconto)} MT</Text>
-              </View>
-            )}
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Imposto</Text>
-              <Text style={styles.totalsValue}>0.00 MT</Text>
-            </View>
-            <View style={styles.grandRow}>
-              <Text style={styles.grandLabel}>TOTAL</Text>
-              <Text style={styles.grandValue}>{fmt(total)} MT</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Notas */}
-        {notes.length > 0 && (
-          <View style={styles.notesWrap}>
-            {notes.map((n, i) => (
-              <View key={i} style={{ marginBottom: 8 }}>
-                <Text style={styles.notesHeading}>{n.heading}</Text>
-                <Text style={styles.notesText}>{n.text}</Text>
-              </View>
-            ))}
           </View>
         )}
 
-        {thanksText && <Text style={styles.thanks}>{thanksText}</Text>}
+        {/* Main Table Grid */}
+        <View style={styles.tableContainer}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderCell, styles.col1]}>Quant.</Text>
+            <Text style={[styles.tableHeaderCell, styles.col2]}>Designação</Text>
+            <Text style={[styles.tableHeaderCell, styles.col3]}>Preço Unit.</Text>
+            <Text style={[styles.tableHeaderCell, styles.col4, styles.tableCellLast]}>Preço Total</Text>
+          </View>
+          
+          {Array.from({ length: numRows }).map((_, idx) => {
+            const it = items[idx];
+            const isLast = idx === numRows - 1;
+            
+            if (it) {
+              return (
+                <View key={idx} style={isLast ? styles.tableRowLast : styles.tableRow}>
+                  <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col1]}>{it.qtd}</Text>
+                  <View style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col2]}>
+                    <Text style={[styles.itemDescMain, isCompact && styles.itemDescMainCompact]}>{it.descricao}</Text>
+                    {it.detalhe && <Text style={[styles.itemDescSub, isCompact && styles.itemDescSubCompact]}>{it.detalhe}</Text>}
+                  </View>
+                  <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col3]}>{fmt(it.unit)}</Text>
+                  <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col4, styles.tableCellLast]}>{fmt(it.qtd * it.unit)}</Text>
+                </View>
+              );
+            }
+            
+            return (
+              <View key={`empty-${idx}`} style={isLast ? styles.tableRowLast : styles.tableRow}>
+                <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col1]}> </Text>
+                <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col2]}> </Text>
+                <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col3]}> </Text>
+                <Text style={[styles.tableCell, isCompact && styles.tableCellCompact, styles.col4, styles.tableCellLast]}> </Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Bottom Section */}
+        <View style={styles.bottomSection}>
+          <View style={styles.paymentBox}>
+            <Text style={styles.paymentLabel}>Formas de Pagamento</Text>
+            <View style={styles.paymentRow}>
+              <View style={styles.checkbox} />
+              <Text style={styles.paymentText}>Dinheiro</Text>
+              <View style={[styles.checkbox, { marginLeft: 16 }]} />
+              <Text style={styles.paymentText}>Cheque nº ____________</Text>
+            </View>
+            <View style={styles.paymentRow}>
+              <View style={styles.checkbox} />
+              <Text style={styles.paymentText}>Transferência Bancária / M-Pesa</Text>
+            </View>
+            <View style={styles.paymentRow}>
+              <Text style={styles.paymentText}>Requisição nº _________________________</Text>
+            </View>
+            
+            {notes && notes.length > 0 && (
+              <View style={{ marginTop: 12 }}>
+                 {notes.map((n, i) => (
+                  <View key={i} style={{ marginBottom: 6 }}>
+                    <Text style={styles.notesHeading}>{n.heading}</Text>
+                    <Text style={styles.notesText}>{n.text}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+            
+          </View>
+          
+          <View style={styles.totalsBox}>
+            <View style={styles.totalsRow}>
+              <View style={styles.totalsLabelBox}><Text style={styles.totalsLabel}>SUB-TOTAL</Text></View>
+              <View style={styles.totalsValueBox}><Text style={styles.totalsValue}>{fmt(subtotal)}</Text></View>
+            </View>
+            {desconto > 0 && (
+              <View style={styles.totalsRow}>
+                <View style={styles.totalsLabelBox}><Text style={styles.totalsLabel}>DESCONTO</Text></View>
+                <View style={styles.totalsValueBox}><Text style={styles.totalsValue}>- {fmt(desconto)}</Text></View>
+              </View>
+            )}
+            <View style={styles.totalsRow}>
+              <View style={styles.totalsLabelBox}><Text style={styles.totalsLabel}>IVA (16%)</Text></View>
+              <View style={styles.totalsValueBox}><Text style={styles.totalsValue}>{fmt(impostoIva)}</Text></View>
+            </View>
+            <View style={styles.totalsRowLast}>
+              <View style={styles.totalsLabelBox}><Text style={styles.totalsLabel}>TOTAL GLOBAL</Text></View>
+              <View style={styles.totalsValueBox}><Text style={styles.totalsValue}>{fmt(total)} MT</Text></View>
+            </View>
+          </View>
+        </View>
+
+        {/* Signature Area */}
+        <View style={styles.signatureArea}>
+          <View style={styles.signatureLine} />
+          <Text style={styles.signatureText}>Assinatura e Carimbo</Text>
+        </View>
 
         <View style={styles.footer}>
           <Text>
-            Documento gerado em {new Date().toLocaleDateString('pt-MZ')} às{' '}
+            Documento processado por computador em {new Date().toLocaleDateString('pt-MZ')} às{' '}
             {new Date().toLocaleTimeString('pt-MZ')} — {empresa?.nome || 'LG TecServ'}
           </Text>
         </View>

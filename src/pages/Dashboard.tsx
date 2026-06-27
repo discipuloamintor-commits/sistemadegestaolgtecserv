@@ -7,6 +7,7 @@ import { Building2, Briefcase, DollarSign, TrendingUp, Smartphone, X, ChevronDow
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, subDays, startOfMonth, startOfYear } from "date-fns";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPie, Pie, Cell } from "recharts";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -222,9 +223,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <PageLoader text="A carregar dashboard..." />
       </DashboardLayout>
     );
   }

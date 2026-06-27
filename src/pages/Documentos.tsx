@@ -66,15 +66,24 @@ export default function Documentos({ isAdmin = false }: DocumentosProps) {
           </p>
         </div>
 
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="flex flex-wrap h-auto justify-start">
-            <TabsTrigger value="recibo">Recibo</TabsTrigger>
-            <TabsTrigger value="fatura">Fatura</TabsTrigger>
-            <TabsTrigger value="cotacao">Cotação</TabsTrigger>
-            <TabsTrigger value="proposta">Proposta</TabsTrigger>
-            <TabsTrigger value="plano">Plano de Vendas</TabsTrigger>
-            <TabsTrigger value="parcelada">Fatura Parcelada</TabsTrigger>
-          </TabsList>
+        <div className="mb-6 space-y-2">
+          <Label className="text-sm font-semibold text-gray-700">Selecione o tipo de documento que deseja gerar:</Label>
+          <Select value={tab} onValueChange={setTab}>
+            <SelectTrigger className="w-full h-12 bg-white text-base shadow-sm border-gray-200">
+              <SelectValue placeholder="Selecione o documento..." />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-[100]">
+              <SelectItem value="recibo">Recibo</SelectItem>
+              <SelectItem value="fatura">Fatura</SelectItem>
+              <SelectItem value="cotacao">Cotação</SelectItem>
+              <SelectItem value="proposta">Proposta</SelectItem>
+              <SelectItem value="plano">Plano de Vendas</SelectItem>
+              <SelectItem value="parcelada">Fatura Parcelada</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Tabs value={tab} className="w-full">
 
           <TabsContent value="recibo">
             <SingleServiceForm
@@ -146,13 +155,20 @@ interface BaseProps {
   registeredClients: any[];
 }
 
+export interface DocumentoItem {
+  descricao: string;
+  qtd: number;
+  unitario: number;
+  periodo: "unico" | "mensal" | "anual";
+}
+
 function SingleServiceForm({
   isAdmin, empresa, registeredClients, docType,
 }: BaseProps & { docType: DocType }) {
   const [recipient, setRecipient] = useState<RecipientState>(emptyRecipient());
-  const [nomeServico, setNomeServico] = useState("");
   const [dataServico, setDataServico] = useState(todayISO());
-  const [valorTotal, setValorTotal] = useState("");
+  const [itens, setItens] = useState<DocumentoItem[]>([{ descricao: "", qtd: 1, unitario: 0, periodo: "unico" }]);
+  const [aplicarIva, setAplicarIva] = useState(true);
   const [observacoes, setObservacoes] = useState("");
   const [statusPagamento, setStatusPagamento] = useState<"pago" | "pendente" | "devendo">(
     docType === "recibo" ? "pago" : "pendente"
@@ -160,14 +176,24 @@ function SingleServiceForm({
   const [resolved, setResolved] = useState<ResolvedRecipient | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Reset preview if any input changes
   const invalidate = () => setResolved(null);
+
+  const updateItem = (idx: number, patch: Partial<DocumentoItem>) => {
+    invalidate();
+    setItens((arr) => arr.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+  };
+
+  const subtotal = itens.reduce((s, i) => s + i.qtd * i.unitario * (i.periodo === "anual" ? 12 : 1), 0);
+  const impostoIva = aplicarIva ? +(subtotal * 0.16).toFixed(2) : 0;
+  const totalGeral = +(subtotal + impostoIva).toFixed(2);
 
   async function handlePrepare() {
     try {
       setLoading(true);
-      if (!nomeServico.trim()) throw new Error("Descrição do serviço é obrigatória");
-      if (!valorTotal || parseFloat(valorTotal) <= 0) throw new Error("Valor total inválido");
+      if (itens.length === 0 || itens.some(i => !i.descricao.trim() || i.qtd <= 0 || i.unitario < 0)) {
+        throw new Error("Preencha todos os itens com descrição e valores válidos");
+      }
+      if (totalGeral <= 0) throw new Error("Valor total inválido");
 
       const reg = registeredClients.find((c) => c.id === recipient.clientId);
       const r = await resolveRecipient(recipient, reg);
@@ -180,19 +206,26 @@ function SingleServiceForm({
     }
   }
 
+  const nomeServicoPrincipal = itens.map(i => i.descricao).join(', ').substring(0, 100) || "Serviços Prestados";
+
   const servico = resolved
     ? {
         id: "doc-" + Date.now(),
-        nome_servico: nomeServico,
+        nome_servico: nomeServicoPrincipal,
         data_servico: dataServico,
-        valor_total: parseFloat(valorTotal) || 0,
+        valor_total: totalGeral,
         valor_investimento: 0,
-        valor_lucro: parseFloat(valorTotal) || 0,
+        valor_lucro: subtotal,
         status_pagamento: statusPagamento,
         tipo_pagamento: "fixo",
         observacoes,
         client_id: resolved.client_id || "",
-        detalhes_servico: { categoria: "outro" },
+        detalhes_servico: { 
+          categoria: "outro", 
+          itens_gerais: itens,
+          subtotal: subtotal,
+          imposto_iva: impostoIva
+        },
       }
     : null;
 
@@ -217,28 +250,11 @@ function SingleServiceForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Descrição do serviço *</Label>
-            <Input
-              value={nomeServico}
-              maxLength={150}
-              onChange={(e) => { setNomeServico(e.target.value); invalidate(); }}
-              placeholder="Ex: Criação de Website Institucional"
-            />
-          </div>
-          <div className="space-y-1.5">
             <Label>Data *</Label>
             <Input
               type="date"
               value={dataServico}
               onChange={(e) => { setDataServico(e.target.value); invalidate(); }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Valor Total (MT) *</Label>
-            <Input
-              type="number" step="0.01"
-              value={valorTotal}
-              onChange={(e) => { setValorTotal(e.target.value); invalidate(); }}
             />
           </div>
           <div className="space-y-1.5">
@@ -251,6 +267,98 @@ function SingleServiceForm({
                 <SelectItem value="devendo">Devendo</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Itens do Documento *</Label>
+            <Button
+              type="button" size="sm" variant="outline"
+              onClick={() => { setItens((a) => [...a, { descricao: "", qtd: 1, unitario: 0, periodo: "unico" }]); invalidate(); }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Item
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {itens.map((it, idx) => (
+              <div key={idx} className="grid grid-cols-12 gap-2 items-end p-2 border rounded-md">
+                <div className="col-span-12 sm:col-span-4 space-y-1">
+                  <Label className="text-xs">Descrição</Label>
+                  <Input
+                    value={it.descricao}
+                    onChange={(e) => updateItem(idx, { descricao: e.target.value })}
+                    placeholder="Ex: Email Corporativo"
+                  />
+                </div>
+                <div className="col-span-6 sm:col-span-2 space-y-1">
+                  <Label className="text-xs">Qtd</Label>
+                  <Input
+                    type="number" min={1}
+                    value={it.qtd}
+                    onChange={(e) => updateItem(idx, { qtd: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="col-span-6 sm:col-span-2 space-y-1">
+                  <Label className="text-xs">Val. Unit. (MT)</Label>
+                  <Input
+                    type="number" step="0.01"
+                    value={it.unitario}
+                    onChange={(e) => updateItem(idx, { unitario: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="col-span-12 sm:col-span-3 space-y-1">
+                  <Label className="text-xs">Período</Label>
+                  <Select value={it.periodo} onValueChange={(v) => updateItem(idx, { periodo: v as any })}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent position="popper" className="z-[100]">
+                      <SelectItem value="unico">Único</SelectItem>
+                      <SelectItem value="mensal">Mensal</SelectItem>
+                      <SelectItem value="anual">Anual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-12 sm:col-span-1 flex justify-end">
+                  <Button
+                    type="button" size="icon" variant="ghost"
+                    onClick={() => { setItens((a) => a.filter((_, i) => i !== idx)); invalidate(); }}
+                    disabled={itens.length === 1}
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex flex-col sm:flex-row justify-end items-end gap-4 mt-4 pt-2">
+            <div className="flex items-center space-x-2 mr-auto sm:mr-0 pt-2 pb-2">
+              <input 
+                type="checkbox" 
+                id="aplicarIva" 
+                checked={aplicarIva} 
+                onChange={(e) => { setAplicarIva(e.target.checked); invalidate(); }}
+                className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer"
+              />
+              <Label htmlFor="aplicarIva" className="text-sm font-medium cursor-pointer">Aplicar IVA (16%)</Label>
+            </div>
+            
+            <div className="text-right text-sm space-y-1 min-w-[200px]">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal:</span>
+                <span>{subtotal.toFixed(2)} MT</span>
+              </div>
+              {aplicarIva && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>IVA (16%):</span>
+                  <span>{impostoIva.toFixed(2)} MT</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-lg pt-1 border-t">
+                <span>Total:</span>
+                <span className="text-primary">{totalGeral.toFixed(2)} MT</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -372,7 +480,7 @@ function PlanoVendasFormUI({ isAdmin, empresa, registeredClients }: BaseProps) {
                     placeholder="Ex: Criação de Logotipo"
                   />
                 </div>
-                <div className="col-span-3 sm:col-span-2 space-y-1">
+                <div className="col-span-6 sm:col-span-2 space-y-1">
                   <Label className="text-xs">Qtd</Label>
                   <Input
                     type="number" min={1}
@@ -388,7 +496,7 @@ function PlanoVendasFormUI({ isAdmin, empresa, registeredClients }: BaseProps) {
                     onChange={(e) => updateItem(idx, { preco: parseFloat(e.target.value) || 0 })}
                   />
                 </div>
-                <div className="col-span-3 sm:col-span-1 flex justify-end">
+                <div className="col-span-12 sm:col-span-1 flex justify-end">
                   <Button
                     type="button" size="icon" variant="ghost"
                     onClick={() => { setItens((a) => a.filter((_, i) => i !== idx)); setResolved(null); }}
@@ -574,8 +682,8 @@ function FaturaParceladaFormUI({ isAdmin, empresa, registeredClients }: BaseProp
         </Button>
 
         {parcelas.length > 0 && (
-          <div className="rounded-md border overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="rounded-md border overflow-hidden overflow-x-auto">
+            <table className="w-full text-sm min-w-[300px]">
               <thead className="bg-muted">
                 <tr>
                   <th className="px-3 py-2 text-left">Parcela</th>
