@@ -5,17 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PropostaContratoMensalPDF, SERVICOS_DISPONIVEIS } from "@/components/pdf/PropostaContratoMensalPDF";
+import {
+    RecipientPicker, RecipientState, emptyRecipient, resolveRecipient, ResolvedRecipient,
+} from "@/components/shared/RecipientPicker";
 
 interface Client {
     id: string;
