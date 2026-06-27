@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./Sidebar";
 import logo from "@/assets/logo.png";
-import { LayoutDashboard, Users, Briefcase, Globe, Receipt, Settings, LogOut, Bell } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, Globe, Receipt, Settings, LogOut, Bell, FileText } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,6 +82,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { icon: services3d, label: "Serviços", path: "/admin/servicos" },
       { icon: hosting3d, label: "Hosting", path: "/admin/pagamentos-hosting" },
       { icon: expenses3d, label: "Gastos", path: "/admin/gastos" },
+      { icon: FileText, label: "Docs", path: "/admin/documentos" },
     ]
     : [
       { icon: dash3d, label: "Dash", path: "/" },
@@ -89,6 +90,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { icon: services3d, label: "Serviços", path: "/servicos" },
       { icon: hosting3d, label: "Hosting", path: "/pagamentos-hosting" },
       { icon: expenses3d, label: "Gastos", path: "/gastos" },
+      { icon: FileText, label: "Docs", path: "/documentos" },
       { icon: Settings, label: "Empresa", path: "/empresa" },
     ];
 
