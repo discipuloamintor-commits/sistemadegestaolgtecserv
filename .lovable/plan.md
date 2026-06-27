@@ -1,54 +1,91 @@
 ## Objetivo
 
-Melhorar a responsividade em telas muito pequenas (≤360px) nas páginas **Clientes**, **PagamentosHosting** e **Gastos**, mantendo um layout profissional com melhor aproveitamento de espaço.
+Permitir emitir Recibos, Faturas, Cotações, Propostas (pontual e contrato mensal), Plano de Vendas e Fatura de Pagamentos Parcelados para destinatários **que não estão cadastrados** no sistema, sem obrigar a criar um cliente fixo. Opcionalmente, o utilizador pode marcar "Salvar como cliente" para registar na base no momento da emissão.
 
-## 1. `src/pages/Clientes.tsx`
+## Como vai funcionar (visão do utilizador)
 
-**Header (botão "Novo Cliente" ampliando o espaço):**
-- Trocar `flex items-center justify-between` por `flex flex-col sm:flex-row sm:items-center justify-between gap-3`.
-- Título: `text-2xl sm:text-3xl`.
-- Botão "Novo Cliente": `w-full sm:w-auto` (no mobile vira full-width abaixo do título em vez de empurrar o layout).
-- DialogContent: `w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6`.
+Em cada formulário de documento haverá um seletor no topo:
 
-**Grid de clientes (2 lado a lado no mobile):**
-- Trocar `grid gap-4 md:grid-cols-2 lg:grid-cols-3` por `grid gap-3 grid-cols-2 lg:grid-cols-3`.
+```
+Destinatário do documento
+( ) Cliente cadastrado    (•) Cliente avulso
+```
 
-**Cards mais compactos (blocos menores):**
-- `CardHeader`: padding reduzido `p-3 sm:p-4`.
-- Avatar: `h-10 w-10 sm:h-12 sm:w-12`.
-- `CardTitle`: `text-sm sm:text-base` com `line-clamp-1` para nomes longos.
-- `CardContent`: `p-3 sm:p-4 pt-0 space-y-2`.
-- Textos de telefone/email/endereço: `text-xs sm:text-sm`, com `truncate` em todos.
-- Ações: empilhar verticalmente no mobile — botão "Ver Detalhes" em linha própria (`w-full`), e Editar + Eliminar lado a lado abaixo (`grid grid-cols-2 gap-2`). Em `sm:` voltar ao layout horizontal atual.
-- Reduzir tamanho dos ícones e usar `size="sm"` consistentemente.
+- **Cliente cadastrado** — comportamento atual (escolhe da lista).
+- **Cliente avulso** — aparecem campos manuais: Nome / Empresa*, Telefone, Email, Endereço, NUIT (opcional). Esses dados vão direto para o PDF e **não** são gravados em lado nenhum, a menos que…
+- Checkbox **"Salvar este cliente na minha base"** — ao emitir/preparar o documento, cria também o registo em `clients` (vinculado ao `user_id` atual).
 
-## 2. `src/pages/Gastos.tsx`
+Validação mínima no modo avulso: Nome obrigatório; Telefone obrigatório; Email se preenchido tem de ser válido. Limites de tamanho aplicados via zod.
 
-**Cards de estatísticas:** `grid gap-3 grid-cols-1 sm:grid-cols-3` (atualmente `md:grid-cols-3` deixa empilhado em telas médias-baixas).
+## Escopo dos documentos
 
-**Lista de gastos (item atual estoura no mobile pois usa `flex items-center justify-between` com muito conteúdo):**
-- Trocar wrapper do item por `flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4`.
-- Cabeçalho do item: permitir quebra — `flex flex-wrap items-center gap-2`, título com `text-sm sm:text-base`, badge com `text-xs`.
-- Metadados: `flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm`.
-- Bloco de valor + ações: alinhar com `flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto`. Valor `text-base sm:text-lg`.
-- Botões de ação: `size="sm"` (em vez de `size="icon"` h-10), `h-8 w-8`.
+Aplicar a mesma mecânica em:
 
-**Card "Filtros":** `CardContent` com `p-4`; já está OK no grid.
+1. Recibo (`ReciboPDF` + formulário emissor)
+2. Fatura (`FaturaPDF` + formulário emissor)
+3. Cotação (`CotacaoPDF` + formulário emissor)
+4. Proposta pontual (`PropostaPDF`)
+5. Proposta de Contrato Mensal (`PropostaContratoForm` + `PropostaContratoMensalPDF`)
+6. **Plano de Vendas** (novo) — documento que lista itens/serviços previstos com valores e totais.
+7. **Fatura de Pagamentos Parcelados** (novo) — fatura que mostra o valor total dividido em N parcelas, cada uma com data de vencimento e valor; reaproveita o layout institucional usado nos outros PDFs.
 
-## 3. `src/pages/PagamentosHosting.tsx`
+## Mudanças técnicas
 
-**Filtro de status:** `w-[200px]` → `w-full sm:w-[200px]`.
+### 1. Componente partilhado `RecipientPicker`
 
-**Cards de pagamento (grid interno estoura em telas pequenas):**
-- `CardHeader` em mobile: já tem `flex items-start justify-between`, OK; reduzir padding `p-4`.
-- Grid de detalhes: `grid grid-cols-2 md:grid-cols-4 gap-4` → `grid grid-cols-2 md:grid-cols-4 gap-3` com `text-xs` consistente nos labels, valores `text-sm`.
-- Botões de ação: `flex flex-wrap gap-2` (já existe) — garantir que cada Button use `size="sm"` e `flex-1 sm:flex-initial` para preencher quando quebrar linha.
-- Lista de pagamentos: passar wrapper externo de `grid gap-4` para `grid gap-3`.
+Novo `src/components/shared/RecipientPicker.tsx`:
 
-**Form Dialog (já em popper z-[100]):** confirmar `w-[calc(100vw-1rem)] sm:max-w-lg` já aplicado; nada a mudar.
+- Props: `clients`, `value: { mode: 'registered' | 'manual', clientId?, manual?: {nome,telefone,email,endereco,nuit}, saveToBase: boolean }`, `onChange`.
+- Renderiza Tabs/RadioGroup + Select de cliente OU campos manuais + checkbox "Salvar na base".
+- Validação zod local exposta como `validate()` / helper `resolveRecipient()` que devolve sempre um objeto normalizado `{ nome, telefone, email, endereco, nuit? }` pronto para os PDFs.
 
-## Notas
+### 2. Helper `useResolveRecipient`
 
-- Mudanças puramente de layout/CSS Tailwind. Sem alterar lógica de dados, queries ou handlers.
-- Sem mexer em PDFs, schema ou business logic.
-- Sem mexer no `ServiceForm`, `GastoForm` interno (já refeitos antes), apenas containers das páginas.
+`src/hooks/useResolveRecipient.ts`:
+
+- Recebe o estado do `RecipientPicker`.
+- Se `mode === 'manual'` e `saveToBase`, faz `insert` em `clients` no momento de emitir e devolve o `client` recém criado.
+- Caso contrário devolve apenas o objeto em memória.
+- Centraliza a lógica para todos os formulários não duplicarem código.
+
+### 3. Atualizar os formulários existentes
+
+Em cada um destes ficheiros, substituir o atual `<Select>` de cliente pelo `<RecipientPicker>` e usar `useResolveRecipient` antes de gerar o PDF:
+
+- `src/components/services/PropostaContratoForm.tsx`
+- formulário de emissão de Recibo (atualmente acoplado a `Servicos.tsx` / `ServiceForm.tsx`)
+- formulário de Fatura
+- formulário de Cotação
+- formulário de Proposta pontual
+
+Os componentes PDF (`ReciboPDF`, `FaturaPDF`, `CotacaoPDF`, `PropostaPDF`, `PropostaContratoMensalPDF`) **não precisam de mudar a assinatura** — já aceitam um objeto `cliente`. Só garantimos que o objeto enviado tem os mesmos campos quer venha de `clients` quer do modo avulso.
+
+### 4. Novos documentos
+
+#### Plano de Vendas
+- Novo PDF `src/components/pdf/PlanoVendasPDF.tsx` reutilizando `_invoiceLayout` (mesmo cabeçalho com logo).
+- Novo formulário `src/components/documents/PlanoVendasForm.tsx`: usa `RecipientPicker`, lista dinâmica de itens (descrição, qtd, preço unit., subtotal), total geral, validade, observações.
+
+#### Fatura de Pagamentos Parcelados
+- Novo PDF `src/components/pdf/FaturaParceladaPDF.tsx` reutilizando `_invoiceLayout`.
+- Novo formulário `src/components/documents/FaturaParceladaForm.tsx`: usa `RecipientPicker`, descrição do serviço/produto, valor total, número de parcelas (input numérico), data da 1ª parcela, intervalo (mensal/quinzenal). O formulário calcula automaticamente a tabela de parcelas (Parcela 1 — data — valor; Parcela 2 — data — valor; …) e mostra preview antes de gerar. A tabela vai impressa no PDF com totais e saldo.
+
+#### Onde aparecem
+Acrescentar pontos de entrada (botões/abas) na página `Servicos.tsx` (e/ou criar `src/pages/Documentos.tsx` com tabs: Recibo / Fatura / Cotação / Proposta / Plano de Vendas / Fatura Parcelada) — a decidir no momento da implementação consoante o que ficar mais limpo na navegação atual.
+
+### 5. Sem alterações de schema
+
+- A tabela `clients` já tem todos os campos necessários (`nome`, `telefone`, `email`, `endereco`). Cliente avulso simplesmente não é inserido. Se "Salvar na base" estiver ligado, faz-se um `insert` normal.
+- **Nenhuma migração de base de dados é necessária.**
+
+### 6. Validação e segurança
+
+- zod schema partilhado para o destinatário avulso (limites de caracteres, email válido, telefone não vazio).
+- Sanitização básica antes de passar para os PDFs.
+- Inserção em `clients` continua a respeitar RLS existente (`user_id = auth.uid()`).
+
+## Fora do escopo
+
+- Não vamos criar uma tabela separada de "destinatários avulsos" / histórico de documentos emitidos a não-clientes (pode ser proposto depois se quiser rastreio).
+- Não vamos alterar layout/design dos PDFs já existentes — apenas a origem dos dados do destinatário.
+- Não alteramos lógica financeira, gastos, hospedagem, nem business rules.
