@@ -76,6 +76,11 @@ interface Client {
 export function ServiceForm({ onSuccess, isAdmin = false, service = null }: ServiceFormProps) {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [recipient, setRecipient] = useState<RecipientState>(() => ({
+    ...emptyRecipient(),
+    mode: 'registered',
+    clientId: service?.client_id || '',
+  }));
   const [selectedTipo, setSelectedTipo] = useState<'fixo' | 'com_investimento'>(service?.tipo_pagamento || 'fixo');
   const [selectedCategoria, setSelectedCategoria] = useState<string>(service?.detalhes_servico?.categoria || '');
   const [hospedagemGratuita, setHospedagemGratuita] = useState(service?.detalhes_servico?.hospedagem_gratuita || false);
