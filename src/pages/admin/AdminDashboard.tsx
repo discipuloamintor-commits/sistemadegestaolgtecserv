@@ -223,7 +223,7 @@ export default function AdminDashboard() {
         totalClients: totalClients || 0,
         totalServices: (totalServicesGlobal || 0) + (totalHostingCount || 0),
         totalRevenue: servicesRevenue + hostingRevenueReal,
-        totalProfit: (servicesProfit + hostingRevenueReal) - totalExpenses,
+        totalProfit: (servicesRevenue + hostingRevenueReal) - totalExpenses,
         totalExpenses,
         predictedRevenue: totalAReceberHosting,
         overdueCount,
