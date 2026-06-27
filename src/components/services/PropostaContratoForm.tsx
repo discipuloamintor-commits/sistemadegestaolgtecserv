@@ -172,7 +172,7 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
                     <PDFDownloadLink
                         document={
                             <PropostaContratoMensalPDF
-                                cliente={selectedClient}
+                                cliente={resolvedClient}
                                 empresa={empresaData}
                                 servicosSelecionados={servicosSelecionados}
                                 valorMensal={valor}
@@ -180,7 +180,7 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
                                 condicoesAdicionais={condicoesAdicionais || undefined}
                             />
                         }
-                        fileName={`proposta-contrato-${selectedClient?.nome?.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
+                        fileName={`proposta-contrato-${(resolvedClient?.nome || 'cliente').replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                     >
                         {({ loading: pdfLoading }) => (
                             <Button className="w-full bg-green-700 hover:bg-green-800" disabled={pdfLoading}>
