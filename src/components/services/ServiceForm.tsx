@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+  RecipientPicker, RecipientState, emptyRecipient, resolveRecipient,
+} from "@/components/shared/RecipientPicker";
 
 const SERVICE_CATEGORIES = [
   { value: 'website', label: 'Criação de Website' },
@@ -29,7 +32,7 @@ const SERVICE_CATEGORIES = [
 ];
 
 const serviceSchema = z.object({
-  client_id: z.string().min(1, "Selecione um cliente"),
+  client_id: z.string().optional(),
   categoria_servico: z.string().min(1, "Selecione uma categoria"),
   nome_servico: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
   nome_servico_custom: z.string().optional(),
@@ -73,6 +76,11 @@ interface Client {
 export function ServiceForm({ onSuccess, isAdmin = false, service = null }: ServiceFormProps) {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [recipient, setRecipient] = useState<RecipientState>(() => ({
+    ...emptyRecipient(),
+    mode: 'registered',
+    clientId: service?.client_id || '',
+  }));
   const [selectedTipo, setSelectedTipo] = useState<'fixo' | 'com_investimento'>(service?.tipo_pagamento || 'fixo');
   const [selectedCategoria, setSelectedCategoria] = useState<string>(service?.detalhes_servico?.categoria || '');
   const [hospedagemGratuita, setHospedagemGratuita] = useState(service?.detalhes_servico?.hospedagem_gratuita || false);
@@ -193,6 +201,15 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
+      // Resolve recipient (registered OR avulso w/ saveToBase).
+      // services.client_id is NOT NULL, so avulso requires saving to base.
+      const effectiveRecipient: RecipientState = recipient.mode === 'manual'
+        ? { ...recipient, saveToBase: true }
+        : recipient;
+      const reg = clients.find(c => c.id === recipient.clientId) as any;
+      const resolved = await resolveRecipient(effectiveRecipient, reg);
+      if (!resolved.client_id) throw new Error("Não foi possível associar o cliente");
+
       const valorTotal = parseFloat(data.valor_total);
       const valorInvestimento = data.tipo_pagamento === 'com_investimento' && data.valor_investimento
         ? parseFloat(data.valor_investimento)
@@ -220,7 +237,7 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
         : data.nome_servico;
 
       const serviceData = {
-        client_id: data.client_id,
+        client_id: resolved.client_id,
         nome_servico: finalName,
         data_servico: data.data_servico,
         valor_total: valorTotal,
@@ -264,30 +281,13 @@ export function ServiceForm({ onSuccess, isAdmin = false, service = null }: Serv
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="client_id">Cliente *</Label>
-        <Controller
-          name="client_id"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value || ''} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="z-[100] max-h-[300px]">
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-        {errors.client_id && (
-          <p className="text-sm text-destructive">{errors.client_id.message}</p>
-        )}
-      </div>
+      <RecipientPicker
+        value={recipient}
+        onChange={setRecipient}
+        isAdmin={isAdmin}
+        requireSaveOnManual
+      />
+
 
       {/* Categoria do Serviço */}
       <div className="space-y-2">

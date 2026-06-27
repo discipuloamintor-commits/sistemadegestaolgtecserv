@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt, Globe, Bell } from "lucide-react";
+import { Home, LayoutDashboard, Building2, Briefcase, BarChart3, Settings, LogOut, UserCheck, Receipt, Globe, Bell, FileText } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +33,7 @@ const adminItems = [
   { title: "Todos Serviços", url: "/admin/servicos", icon: services3d },
   { title: "Pagamentos Hosting", url: "/admin/pagamentos-hosting", icon: hosting3d },
   { title: "Todos Gastos", url: "/admin/gastos", icon: expenses3d },
+  { title: "Documentos", url: "/admin/documentos", icon: FileText },
 ];
 
 const membroItems = [
@@ -41,6 +42,7 @@ const membroItems = [
   { title: "Serviços", url: "/servicos", icon: services3d },
   { title: "Pagamentos Hosting", url: "/pagamentos-hosting", icon: hosting3d },
   { title: "Gastos", url: "/gastos", icon: expenses3d },
+  { title: "Documentos", url: "/documentos", icon: FileText },
   { title: "Minha Empresa", url: "/empresa", icon: Settings },
 ];
 

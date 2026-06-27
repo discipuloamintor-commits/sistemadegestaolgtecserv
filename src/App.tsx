@@ -22,6 +22,7 @@ const Servicos = lazy(() => import("./pages/Servicos"));
 const PagamentosHosting = lazy(() => import("./pages/PagamentosHosting"));
 const Gastos = lazy(() => import("./pages/Gastos"));
 const MinhaEmpresa = lazy(() => import("./pages/MinhaEmpresa"));
+const Documentos = lazy(() => import("./pages/Documentos"));
 const AguardandoAprovacao = lazy(() => import("./pages/AguardandoAprovacao"));
 const ContaRejeitada = lazy(() => import("./pages/ContaRejeitada"));
 const ContaSuspensa = lazy(() => import("./pages/ContaSuspensa"));
@@ -73,6 +74,9 @@ const App = () => {
               <Route path="/pagamentos-hosting" element={<ProtectedRoute><PagamentosHosting /></ProtectedRoute>} />
               <Route path="/gastos" element={<ProtectedRoute><Gastos /></ProtectedRoute>} />
               <Route path="/empresa" element={<ProtectedRoute><MinhaEmpresa /></ProtectedRoute>} />
+              <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
+              <Route path="/admin/documentos" element={<AdminRoute><Documentos isAdmin /></AdminRoute>} />
+
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

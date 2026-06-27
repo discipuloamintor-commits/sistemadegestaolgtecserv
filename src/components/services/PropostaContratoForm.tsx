@@ -5,17 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PropostaContratoMensalPDF, SERVICOS_DISPONIVEIS } from "@/components/pdf/PropostaContratoMensalPDF";
+import {
+    RecipientPicker, RecipientState, emptyRecipient, resolveRecipient, ResolvedRecipient,
+} from "@/components/shared/RecipientPicker";
 
 interface Client {
     id: string;
@@ -30,9 +26,9 @@ interface PropostaContratoFormProps {
 }
 
 export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormProps) {
-    const [clients, setClients] = useState<Client[]>([]);
-    const [selectedClientId, setSelectedClientId] = useState("");
-    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [registeredClients, setRegisteredClients] = useState<Client[]>([]);
+    const [recipient, setRecipient] = useState<RecipientState>(emptyRecipient());
+    const [resolvedClient, setResolvedClient] = useState<ResolvedRecipient | null>(null);
     const [servicosSelecionados, setServicosSelecionados] = useState<string[]>([]);
     const [valorMensal, setValorMensal] = useState("");
     const [observacoes, setObservacoes] = useState("");
@@ -70,17 +66,10 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
                 query = query.eq('user_id', user.id);
             }
             const { data } = await query.order('nome');
-            setClients(data || []);
+            setRegisteredClients(data || []);
         } catch (error) {
             console.error('Error fetching clients:', error);
         }
-    }
-
-    function handleClientChange(clientId: string) {
-        setSelectedClientId(clientId);
-        const client = clients.find(c => c.id === clientId) || null;
-        setSelectedClient(client);
-        setReady(false);
     }
 
     function handleServicoToggle(servicoId: string, checked: boolean) {
@@ -90,39 +79,36 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
         setReady(false);
     }
 
-    function handlePrepare() {
-        if (!selectedClientId) {
-            toast.error('Selecione um cliente');
-            return;
+    async function handlePrepare() {
+        try {
+            if (servicosSelecionados.length === 0) {
+                toast.error('Selecione pelo menos um serviço');
+                return;
+            }
+            if (!valorMensal || parseFloat(valorMensal) <= 0) {
+                toast.error('Informe o valor mensal');
+                return;
+            }
+            const reg = registeredClients.find(c => c.id === recipient.clientId);
+            const r = await resolveRecipient(recipient, reg as any);
+            setResolvedClient(r);
+            setReady(true);
+            toast.success('Proposta pronta! Clique em "Descarregar PDF" para gerar o documento.');
+        } catch (e: any) {
+            toast.error(e.message || 'Erro ao preparar proposta');
         }
-        if (servicosSelecionados.length === 0) {
-            toast.error('Selecione pelo menos um serviço');
-            return;
-        }
-        if (!valorMensal || parseFloat(valorMensal) <= 0) {
-            toast.error('Informe o valor mensal');
-            return;
-        }
-        setReady(true);
-        toast.success('Proposta pronta! Clique em "Descarregar PDF" para gerar o documento.');
     }
 
     const valor = parseFloat(valorMensal) || 0;
 
     return (
         <div className="space-y-6">
-            {/* Cliente */}
-            <div>
-                <Label className="text-sm font-semibold">Cliente *</Label>
-                <Select value={selectedClientId} onValueChange={handleClientChange}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
-                    <SelectContent>
-                        {clients.map(c => (
-                            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+            <RecipientPicker
+                value={recipient}
+                onChange={(v) => { setRecipient(v); setReady(false); setResolvedClient(null); }}
+                isAdmin={isAdmin}
+            />
+
 
             {/* Checklist */}
             <div>
@@ -186,7 +172,7 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
                     <PDFDownloadLink
                         document={
                             <PropostaContratoMensalPDF
-                                cliente={selectedClient}
+                                cliente={resolvedClient}
                                 empresa={empresaData}
                                 servicosSelecionados={servicosSelecionados}
                                 valorMensal={valor}
@@ -194,7 +180,7 @@ export function PropostaContratoForm({ isAdmin = false }: PropostaContratoFormPr
                                 condicoesAdicionais={condicoesAdicionais || undefined}
                             />
                         }
-                        fileName={`proposta-contrato-${selectedClient?.nome?.replace(/\s+/g, '-')}-${Date.now()}.pdf`}
+                        fileName={`proposta-contrato-${(resolvedClient?.nome || 'cliente').replace(/\s+/g, '-')}-${Date.now()}.pdf`}
                     >
                         {({ loading: pdfLoading }) => (
                             <Button className="w-full bg-green-700 hover:bg-green-800" disabled={pdfLoading}>
