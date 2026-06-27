@@ -8,6 +8,7 @@ import { Loading } from "@/components/ui/loading";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { SplashScreen } from "@/components/pwa/SplashScreen";
 import { IOSInstallBanner } from "@/components/pwa/IOSInstallBanner";
+import { ManualInstallBanner } from "@/components/pwa/ManualInstallBanner";
 import { useAutoInstallPrompt } from "@/hooks/useAutoInstallPrompt";
 import { useServiceWorkerUpdate } from "@/hooks/useServiceWorkerUpdate";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
@@ -104,6 +105,9 @@ const App = () => {
 
         {/* iOS Install Banner */}
         <IOSInstallBanner />
+
+        {/* Manual Install Banner - always shows when not installed */}
+        <ManualInstallBanner />
       </TooltipProvider>
     </QueryClientProvider>
   );
